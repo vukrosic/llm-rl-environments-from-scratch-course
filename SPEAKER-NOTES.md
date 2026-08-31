@@ -60,3 +60,15 @@ meaning, difficulty, and novelty. [Source: S20]
 The model sees a subset-sum prompt while hidden code retains the planted answer
 and checks the response. This solve–verify asymmetry is the same design pattern
 we use with BFS in Sokoban. [Source: S20]
+
+## 10 — Our experiment
+
+The left side separates the two training stages. BFS first supplies imitation
+examples from training states so a random 19,876-parameter causal Transformer
+can produce useful behavior. The treatment then creates 5,120 executable
+on-policy episodes per seed and uses return-to-go REINFORCE with a batch
+baseline, entropy bonus, and hidden BFS-distance shaping. The model receives
+only board tokens and scalar reward—not the distance or answer path. Against
+the identical SFT checkpoint, RL raises greedy solve rate on 90 unseen states
+from 39.3% to 52.0%, with all five paired seeds improving. This is a bounded
+mechanism study, not PPO, GRPO, or a full RAGEN replication. [Source: S21]
