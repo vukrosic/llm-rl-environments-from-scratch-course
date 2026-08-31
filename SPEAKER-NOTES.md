@@ -63,12 +63,14 @@ we use with BFS in Sokoban. [Source: S20]
 
 ## 10 — Our experiment
 
-The left side separates the two training stages. BFS first supplies imitation
-examples from training states so a random 19,876-parameter causal Transformer
-can produce useful behavior. The treatment then creates 5,120 executable
-on-policy episodes per seed and uses return-to-go REINFORCE with a batch
-baseline, entropy bonus, and hidden BFS-distance shaping. The model receives
-only board tokens and scalar reward—not the distance or answer path. Against
-the identical SFT checkpoint, RL raises greedy solve rate on 90 unseen states
-from 39.3% to 52.0%, with all five paired seeds improving. This is a bounded
-mechanism study, not PPO, GRPO, or a full RAGEN replication. [Source: S21]
+Breadth-first search, or BFS, is an ordinary exact game solver: it explores
+legal move sequences until it finds a shortest solution. We use its solved
+examples to teach the tiny model basic behavior; this is supervised
+fine-tuning, or SFT. We then duplicate that model for a fair comparison. One
+copy stops there. The other plays 5,120 fresh games per run. After each game,
+REINFORCE increases the probability of actions that led to better reward and
+decreases the probability of worse actions. BFS also measures progress for the
+hidden reward, but the model never sees the distance or answer. On 90 unseen
+puzzles, imitation alone solves 39.3%, while imitation plus RL solves 52.0%—an
+improvement of 12.7 percentage points, with all five runs improving. [Source:
+S21]
