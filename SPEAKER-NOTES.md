@@ -61,7 +61,18 @@ The model sees a subset-sum prompt while hidden code retains the planted answer
 and checks the response. This solve–verify asymmetry is the same design pattern
 we use with BFS in Sokoban. [Source: S20]
 
-## 10 — Our experiment
+## 10 — Trained environment replay
+
+This is a recorded greedy replay from the selected seed-2001 checkpoint, not a
+hand-authored solution. The tiny Transformer predicts one action token, Python
+executes it in the Sokoban environment, and the resulting board becomes the
+next observation. The six actions are down, down, left, down, right, right.
+Every selected-action probability is above 98.8%, and the six-move path matches
+the exact shortest length found by BFS. The repository retains every state,
+four-way probability distribution, reward, validity flag, and terminal flag.
+[Source: S21]
+
+## 11 — Our experiment
 
 Breadth-first search, or BFS, is an ordinary exact game solver: it explores
 legal move sequences until it finds a shortest solution. We use its solved
@@ -75,7 +86,7 @@ puzzles, imitation alone solves 39.3%, while imitation plus RL solves 52.0%—an
 improvement of 12.7 percentage points, with all five runs improving. [Source:
 S21]
 
-## 11 — What we actually train
+## 12 — What we actually train
 
 This is the explicit claim boundary. The experiment does not use a pretrained
 large language model. It uses a randomly initialized 19,876-parameter causal
