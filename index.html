@@ -348,7 +348,7 @@
             </div>
             <div class="toolphone-thread">
               <div class="toolphone-thread-label">MESSAGING DATABASE</div>
-              <div class="toolphone-message">How’s the new album coming along?<span>DELIVERED · [redacted synthetic number]</span></div>
+              <div class="toolphone-message">How’s the new album coming along?<span>DELIVERED · SYNTHETIC CONTACT</span></div>
             </div>
             <div class="toolphone-toast">ConnectionError: cellular service is not enabled</div>
           </div>
@@ -1214,10 +1214,10 @@ task-001/<br>
     {word:'RIGHT',arrow:'→',cmd:'right',player:[4,5],crate:[5,5],feedback:'Policy P(R)=98.90%. Goal reached; episode complete.',reward:'+1 target\n+10 solved\n−0.1 action',solved:true}
   ];
   const toolPhoneActions=[
-    {phase:'FIND CONTACT',tool:'search_contacts',args:'{"name": "Fredrik Thordendal"}',response:'Found [redacted synthetic number]',state:'contact-known',passes:[1]},
-    {phase:'SEND → ERROR',tool:'send_message_with_phone_number',args:'{"phone_number": "[redacted synthetic number]",\n "content": "How’s the new album coming along."}',response:'ConnectionError: cellular service is not enabled',state:'phone-error',error:true,passes:[1]},
+    {phase:'FIND CONTACT',tool:'search_contacts',args:'{"name": "Fredrik Thordendal"}',response:'Found synthetic contact',state:'contact-known',passes:[1]},
+    {phase:'SEND → ERROR',tool:'send_message_with_phone_number',args:'{"phone_number": "[hidden]",\n "content": "How’s the new album coming along."}',response:'ConnectionError: cellular service is not enabled',state:'phone-error',error:true,passes:[1]},
     {phase:'REPAIR STATE',tool:'set_cellular_service_status',args:'{"on": true}',response:'cellular = true',state:'cell-on',passes:[0,1]},
-    {phase:'RETRY → SENT',tool:'send_message_with_phone_number',args:'{"phone_number": "[redacted synthetic number]",\n "content": "How’s the new album coming along."}',response:'Message stored in MESSAGING database',state:'message-sent',success:true,passes:[0,1,2,3]}
+    {phase:'RETRY → SENT',tool:'send_message_with_phone_number',args:'{"phone_number": "[hidden]",\n "content": "How’s the new album coming along."}',response:'Message stored in MESSAGING database',state:'message-sent',success:true,passes:[0,1,2,3]}
   ];
   let sokoTimers=[],sokoRunning=false,sokoStaticReady=false;
   let coverSokoTimers=[],coverSokoRunning=false,coverSokoStaticReady=false;
@@ -1240,7 +1240,7 @@ task-001/<br>
   function setToolPhoneCall(step,i){toolPhonePhase.textContent=step.phase;toolPhoneStepLabel.textContent=`TOOL CALL ${String(i+1).padStart(2,'0')} / ${toolPhoneActions.length}`;toolPhoneToolName.textContent=step.tool;toolPhoneArgs.textContent=step.args}
   function setToolPhoneMilestones(passes){toolPhoneMilestoneNodes.forEach((node,i)=>node.classList.toggle('pass',passes.includes(i)));toolPhoneScore.textContent=`${passes.length} / ${toolPhoneMilestoneNodes.length}${passes.length===toolPhoneMilestoneNodes.length?' · PASS':''}`;toolPhoneScore.classList.toggle('pass',passes.length===toolPhoneMilestoneNodes.length)}
   function resetToolPhone(){if(!toolPhoneWorld)return;toolPhoneWorld.classList.remove('cell-on','contact-known','phone-error','message-sent','solved');toolPhoneNetwork.textContent='CELLULAR OFF';toolPhoneSignal.textContent='NO SERVICE';toolPhoneContactName.textContent='Contact not queried';toolPhoneContactNumber.textContent='phone number hidden';toolPhoneStepNodes.forEach((node,i)=>{node.classList.remove('done','active');if(i===0)node.classList.add('active')});setToolPhoneCall(toolPhoneActions[0],0);toolPhoneReturn.classList.remove('error','success');toolPhoneResponse.textContent='awaiting tool call…';setToolPhoneMilestones([])}
-  function applyToolPhoneState(step){if(step.state==='contact-known'){toolPhoneWorld.classList.add('contact-known');toolPhoneContactName.textContent='Fredrik Thordendal';toolPhoneContactNumber.textContent='[redacted synthetic number]'}else if(step.state==='phone-error'){toolPhoneWorld.classList.add('phone-error')}else if(step.state==='cell-on'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('cell-on');toolPhoneNetwork.textContent='CELLULAR ON';toolPhoneSignal.textContent='LTE'}else if(step.state==='message-sent'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('message-sent','solved')}}
+  function applyToolPhoneState(step){if(step.state==='contact-known'){toolPhoneWorld.classList.add('contact-known');toolPhoneContactName.textContent='Fredrik Thordendal';toolPhoneContactNumber.textContent='[hidden synthetic number]'}else if(step.state==='phone-error'){toolPhoneWorld.classList.add('phone-error')}else if(step.state==='cell-on'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('cell-on');toolPhoneNetwork.textContent='CELLULAR ON';toolPhoneSignal.textContent='LTE'}else if(step.state==='message-sent'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('message-sent','solved')}}
   function showToolPhoneStep(step,i){setToolPhoneCall(step,i);toolPhoneStepNodes.forEach((node,j)=>{node.classList.toggle('active',j===i);node.classList.toggle('done',j<i)});toolPhoneReturn.classList.remove('error','success');toolPhoneResponse.textContent='executing tool…'}
   function completeToolPhoneStep(step,i){applyToolPhoneState(step);toolPhoneReturn.classList.toggle('error',Boolean(step.error));toolPhoneReturn.classList.toggle('success',Boolean(step.success));toolPhoneResponse.textContent=step.response;setToolPhoneMilestones(step.passes);toolPhoneStepNodes[i].classList.remove('active');toolPhoneStepNodes[i].classList.add('done')}
   function stopToolPhone(){toolPhoneRunning=false;toolPhoneTimers.forEach(clearTimeout);toolPhoneTimers=[]}
