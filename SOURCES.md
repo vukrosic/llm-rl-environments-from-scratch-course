@@ -129,21 +129,6 @@ Checked 2026-08-31. Primary sources are preferred. The two paper figures in `ass
   inspected during pilots; the five-seed confirmation uses a separately frozen
   test split.
 
-## S22 — EnvHarness
-
-- Huang et al., “EnvHarness: Awakening Static Worlds for Agent Learning,”
-  arXiv:2608.19880, August 2026: https://arxiv.org/abs/2608.19880
-- Official project page: https://envharness.com/
-- Official open-source implementation: https://github.com/google-research/envharness
-- Used on slide 13 for a conceptual reconstruction of the project page’s
-  designer-loop example: repeated untested submissions are diagnosed, a Rule
-  component wraps `step()` to require testing, and the component is retained
-  only after fresh rollouts change the behavior. The underlying task and
-  verifier stay fixed.
-- The ALFWorld comparison shown on the slide—85.4% for RL on the original
-  environments and 88.3% for RL on EnvHarness environments—is reported by the
-  authors; it is not a local reproduction.
-
 ## Claims we do not make
 
 - We do not claim an exact Apodex training reproduction.
