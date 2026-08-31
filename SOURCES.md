@@ -123,8 +123,7 @@ Checked 2026-08-31. Primary sources are preferred. The two paper figures in `ass
 - Aggregate and per-seed results: `results/final/summary.json`
 - Paired analysis and receipt audit: `results/final/analysis.json`
 - Complete title replay: `artifacts/title_board_replay.json`
-- Used for the trained replay on slides 1 and 4 and for all implementation,
-  pilot, training, and measured-result slides after slide 9.
+- Used for the trained replay on slides 1 and 4.
 - Boundary: the title state is excluded from aggregate metrics because it was
   inspected during pilots; the five-seed confirmation uses a separately frozen
   test split.
