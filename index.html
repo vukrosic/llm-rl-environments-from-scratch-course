@@ -1205,7 +1205,6 @@ task-001/<br>
   function prev(){if(fragmentIndex>0){fragmentIndex--;render(false);return}if(index>0){index--;fragmentIndex=fragments().length;render()}}
   addEventListener('resize',fit);addEventListener('hashchange',()=>{index=routeIndex();fragmentIndex=0;render(false)});
   addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev()}else if(e.key==='Home'){index=0;fragmentIndex=0;render()}else if(e.key==='End'){index=slides.length-1;fragmentIndex=fragments().length;render()}});
-  addEventListener('click',e=>{if(e.clientX>innerWidth/2)next();else prev()});
   if(new URLSearchParams(location.search).get('all')==='1')document.body.classList.add('show-all');
   index=routeIndex();fit();render(false);
 </script>
