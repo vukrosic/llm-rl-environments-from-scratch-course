@@ -74,3 +74,15 @@ hidden reward, but the model never sees the distance or answer. On 90 unseen
 puzzles, imitation alone solves 39.3%, while imitation plus RL solves 52.0%—an
 improvement of 12.7 percentage points, with all five runs improving. [Source:
 S21]
+
+## 11 — What we actually train
+
+This is the explicit claim boundary. The experiment does not use a pretrained
+large language model. It uses a randomly initialized 19,876-parameter causal
+Transformer. Each current board becomes a sequence of 41 symbolic tokens, and
+the model produces probabilities for exactly four action tokens. The recorded
+first title-board decision assigns 99.3% probability to DOWN. Python executes
+that token, returns a new board, and the model predicts again. A real LLM
+version would replace this tiny policy with a pretrained language model while
+retaining the executable world, action interface, trajectory recorder, hidden
+verifier, scalar reward, and policy-update loop. [Source: S21]
