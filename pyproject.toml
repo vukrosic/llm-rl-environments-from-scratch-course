@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tiny-sokoban-lm-rl"
+version = "0.1.0"
+description = "A MacBook-sized decoder-only Transformer trained in an executable Sokoban environment"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Vuk Rosić"}]
+dependencies = ["torch>=2.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["tiny_sokoban*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

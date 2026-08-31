@@ -1,0 +1,99 @@
+{
+  "mean_solve_rate_by_optimal_steps": {
+    "1": {
+      "sft": 0.6,
+      "sft_plus_rl": 0.6
+    },
+    "10": {
+      "sft": 0.1,
+      "sft_plus_rl": 0.7
+    },
+    "11": {
+      "sft": 0.2,
+      "sft_plus_rl": 0.4
+    },
+    "2": {
+      "sft": 0.55,
+      "sft_plus_rl": 0.65
+    },
+    "3": {
+      "sft": 0.6727272727272727,
+      "sft_plus_rl": 0.7454545454545455
+    },
+    "4": {
+      "sft": 0.4533333333333333,
+      "sft_plus_rl": 0.5866666666666667
+    },
+    "5": {
+      "sft": 0.31764705882352945,
+      "sft_plus_rl": 0.4
+    },
+    "6": {
+      "sft": 0.36,
+      "sft_plus_rl": 0.48
+    },
+    "7": {
+      "sft": 0.2,
+      "sft_plus_rl": 0.32
+    },
+    "8": {
+      "sft": 0.04,
+      "sft_plus_rl": 0.32
+    },
+    "9": {
+      "sft": 0.39999999999999997,
+      "sft_plus_rl": 0.6666666666666666
+    }
+  },
+  "paired_primary_result": {
+    "all_five_differences_positive": true,
+    "difference_by_seed": [
+      0.07777777777777778,
+      0.16666666666666663,
+      0.2,
+      0.08888888888888885,
+      0.09999999999999998
+    ],
+    "exact_sign_test_one_sided_p": 0.03125,
+    "exact_sign_test_two_sided_p": 0.0625,
+    "mean_difference": 0.12666666666666665,
+    "sample_standard_deviation": 0.053633415049542985,
+    "seeds": [
+      2001,
+      2002,
+      2003,
+      2004,
+      2005
+    ],
+    "sft_mean": 0.3933333333333333,
+    "sft_plus_rl_mean": 0.52,
+    "t_95_percent_interval": [
+      0.06007198609892904,
+      0.19326134723440425
+    ]
+  },
+  "receipt_checks": {
+    "all_reported_title_paths_are_optimal": true,
+    "all_reported_title_replays_solved": true,
+    "all_ten_metric_trajectory_files_have_91_rows": true,
+    "artifact_hash_matches": true,
+    "config_hash_file_matches": true,
+    "config_hash_matches": true,
+    "split_hash_matches": true,
+    "splits_are_pairwise_disjoint": true,
+    "title_excluded_from_metrics": true,
+    "title_is_test_only": true
+  },
+  "trajectory_line_counts": {
+    "sft_plus_rl_seed2001.jsonl": 91,
+    "sft_plus_rl_seed2002.jsonl": 91,
+    "sft_plus_rl_seed2003.jsonl": 91,
+    "sft_plus_rl_seed2004.jsonl": 91,
+    "sft_plus_rl_seed2005.jsonl": 91,
+    "sft_seed2001.jsonl": 91,
+    "sft_seed2002.jsonl": 91,
+    "sft_seed2003.jsonl": 91,
+    "sft_seed2004.jsonl": 91,
+    "sft_seed2005.jsonl": 91
+  }
+}

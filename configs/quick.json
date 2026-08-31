@@ -1,0 +1,58 @@
+{
+  "name": "pilot",
+  "device": "cpu",
+  "history_limit": 0,
+  "split_seed": 1729,
+  "seeds": [101],
+  "artifact_seed": 101,
+  "artifact_condition": "sft_plus_rl",
+  "primary_comparison": {"treatment": "sft_plus_rl", "control": "sft"},
+  "conditions": [
+    {"name": "sft_plus_rl", "sampler": "uniform", "reward": "progress"}
+  ],
+  "publish_artifact": false,
+  "output_dir": "results/pilot",
+  "model": {
+    "max_seq_len": 64,
+    "num_actions": 4,
+    "d_model": 32,
+    "n_layers": 2,
+    "n_heads": 4,
+    "d_ff": 64,
+    "dropout": 0.0,
+    "pad_token_id": 0
+  },
+  "sft": {
+    "max_puzzle_steps": 10,
+    "epochs": 30,
+    "batch_size": 128,
+    "learning_rate": 0.002,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0
+  },
+  "training": {
+    "updates": 80,
+    "batch_size": 64,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0,
+    "entropy_coefficient": 0.005,
+    "gamma": 1.0,
+    "shaping_scale": 0.5,
+    "gradient_clip": 1.0,
+    "max_steps": 20,
+    "max_train_difficulty": 10,
+    "initial_boundary": 2,
+    "curriculum_threshold": 0.45,
+    "curriculum_window_updates": 3,
+    "curriculum_replay_fraction": 0.2,
+    "log_every": 10
+  },
+  "evaluation": {
+    "split": "validation",
+    "max_steps": 20,
+    "batch_size": 128,
+    "max_puzzles_per_distance": 24,
+    "primary_min_steps": 1,
+    "primary_max_steps": 10
+  }
+}

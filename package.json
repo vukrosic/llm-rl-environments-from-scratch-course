@@ -1,0 +1,12 @@
+{
+  "name": "tiny-sokoban-rl-slides",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render-slides.mjs",
+    "audit": "node audit-layout.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

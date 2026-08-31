@@ -1,0 +1,297 @@
+{
+  "actions": [
+    "D",
+    "D",
+    "L",
+    "D",
+    "R",
+    "R"
+  ],
+  "hit_deadlock": false,
+  "initial_state": {
+    "box": [
+      2,
+      2
+    ],
+    "goal": [
+      4,
+      4
+    ],
+    "player": [
+      1,
+      2
+    ]
+  },
+  "invalid_actions": 0,
+  "optimal_steps": 6,
+  "puzzle_id": "p12-b22-g44",
+  "solved": true,
+  "steps": [
+    {
+      "action": "D",
+      "action_probabilities": {
+        "D": 0.9874210357666016,
+        "L": 0.003703531576320529,
+        "R": 0.004856146406382322,
+        "U": 0.004019279032945633
+      },
+      "base_reward": -0.1,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          3,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          2,
+          2
+        ]
+      },
+      "pushed": true,
+      "reward": -0.1,
+      "shaping_reward": 0.0,
+      "solved": false,
+      "state": {
+        "box": [
+          2,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          1,
+          2
+        ]
+      },
+      "valid": true
+    },
+    {
+      "action": "D",
+      "action_probabilities": {
+        "D": 0.989473283290863,
+        "L": 0.005909620318561792,
+        "R": 0.0026362671051174402,
+        "U": 0.0019808432552963495
+      },
+      "base_reward": -0.1,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          3,
+          2
+        ]
+      },
+      "pushed": true,
+      "reward": -0.1,
+      "shaping_reward": 0.0,
+      "solved": false,
+      "state": {
+        "box": [
+          3,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          2,
+          2
+        ]
+      },
+      "valid": true
+    },
+    {
+      "action": "L",
+      "action_probabilities": {
+        "D": 0.01333284005522728,
+        "L": 0.980291485786438,
+        "R": 0.00513335270807147,
+        "U": 0.0012422861764207482
+      },
+      "base_reward": -0.1,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          3,
+          1
+        ]
+      },
+      "pushed": false,
+      "reward": -0.1,
+      "shaping_reward": 0.0,
+      "solved": false,
+      "state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          3,
+          2
+        ]
+      },
+      "valid": true
+    },
+    {
+      "action": "D",
+      "action_probabilities": {
+        "D": 0.9620577692985535,
+        "L": 0.0018311181338503957,
+        "R": 0.03329785168170929,
+        "U": 0.0028132530860602856
+      },
+      "base_reward": -0.1,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          4,
+          1
+        ]
+      },
+      "pushed": false,
+      "reward": -0.1,
+      "shaping_reward": 0.0,
+      "solved": false,
+      "state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          3,
+          1
+        ]
+      },
+      "valid": true
+    },
+    {
+      "action": "R",
+      "action_probabilities": {
+        "D": 0.002636581426486373,
+        "L": 0.0020272566471248865,
+        "R": 0.9845592379570007,
+        "U": 0.010776895098388195
+      },
+      "base_reward": -0.1,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          4,
+          3
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          4,
+          2
+        ]
+      },
+      "pushed": true,
+      "reward": -0.1,
+      "shaping_reward": 0.0,
+      "solved": false,
+      "state": {
+        "box": [
+          4,
+          2
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          4,
+          1
+        ]
+      },
+      "valid": true
+    },
+    {
+      "action": "R",
+      "action_probabilities": {
+        "D": 0.0034664312843233347,
+        "L": 0.00758955255150795,
+        "R": 0.9821223020553589,
+        "U": 0.006821737624704838
+      },
+      "base_reward": 10.9,
+      "deadlock": false,
+      "next_state": {
+        "box": [
+          4,
+          4
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          4,
+          3
+        ]
+      },
+      "pushed": true,
+      "reward": 10.9,
+      "shaping_reward": 0.0,
+      "solved": true,
+      "state": {
+        "box": [
+          4,
+          3
+        ],
+        "goal": [
+          4,
+          4
+        ],
+        "player": [
+          4,
+          2
+        ]
+      },
+      "valid": true
+    }
+  ],
+  "total_reward": 10.4,
+  "truncated": false
+}

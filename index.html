@@ -1,0 +1,1346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Road to OpenAI: Building an LLM RL Environment From Scratch</title>
+  <style>
+    :root{
+      --bg:#08131d;--panel:#102230;--panel2:#152c3b;--paper:#f6f1e7;--ink:#10212c;
+      --white:#f9fbfa;--muted:#a9bbc4;--muted2:#657985;--line:#294656;
+      --aqua:#51e2c2;--coral:#ff765f;--gold:#ffc95c;--blue:#70a7ff;--violet:#a88cff;
+    }
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02070b}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--white)}
+    #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;background:var(--bg);overflow:hidden}
+    .slide{position:absolute;inset:0;display:none;padding:64px 92px 72px;background:
+      radial-gradient(circle at 90% 4%,rgba(81,226,194,.08),transparent 27%),
+      radial-gradient(circle at 5% 95%,rgba(255,118,95,.08),transparent 25%),var(--bg)}
+    .slide.active{display:block}.slide.active .enter{animation:rise .55s cubic-bezier(.2,.75,.2,1) both}
+    .slide.active .enter.d2{animation-delay:.12s}.slide.active .enter.d3{animation-delay:.24s}.slide.active .enter.d4{animation-delay:.36s}.slide.active .enter.d5{animation-delay:.48s}.slide.active .enter.d6{animation-delay:.6s}
+    @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+    .slide:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:52px 52px}
+    .content{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;min-height:0}
+    h1,h2,h3,p{margin:0}h1{font-size:94px;line-height:.94;letter-spacing:-.065em;max-width:1600px}
+    h2{font-size:62px;line-height:1.02;letter-spacing:-.045em;max-width:1680px;margin-bottom:26px}
+    h3{font-size:29px;line-height:1.1;letter-spacing:-.02em;margin-bottom:12px}
+    p{font-size:28px;line-height:1.38;color:var(--muted)}strong{color:var(--white)}
+    .eyebrow{font:800 17px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--aqua);margin-bottom:18px}
+    .accent{color:var(--coral)}.aqua{color:var(--aqua)}.gold{color:var(--gold)}.blue{color:var(--blue)}
+    .hero{justify-content:center}.hero p{font-size:34px;max-width:1320px;margin-top:30px}
+    .rule{width:160px;height:8px;background:linear-gradient(90deg,var(--coral),var(--aqua));border-radius:20px;margin-top:30px}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;flex:1;min-height:0}
+    .split.wide-right{grid-template-columns:.82fr 1.18fr}.split.wide-left{grid-template-columns:1.15fr .85fr}
+    .stack{display:flex;flex-direction:column;gap:18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:25px;flex:1;align-content:center}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;align-items:stretch}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;flex:1;align-items:stretch}
+    .card{padding:28px 30px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(150deg,rgba(21,44,59,.95),rgba(12,28,39,.95));box-shadow:0 22px 70px rgba(0,0,0,.24)}
+    .card.aqua{border-top:8px solid var(--aqua)}.card.coral{border-top:8px solid var(--coral)}.card.gold{border-top:8px solid var(--gold)}.card.blue{border-top:8px solid var(--blue)}
+    .card p{font-size:24px}.card .big{font-size:50px;line-height:1;font-weight:900;color:var(--white);letter-spacing:-.05em;margin-bottom:12px}
+    .card .label{font:800 16px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--aqua);margin-bottom:16px}
+    .takeaway{margin-top:auto;padding-top:20px;font-size:31px;line-height:1.25;color:var(--white);font-weight:780}
+    .source{position:absolute;left:92px;right:245px;bottom:22px;z-index:5;font-size:15px;line-height:1.25;color:#78909c}
+    .source a{color:inherit;text-decoration:none;border-bottom:1px solid #526c79}.counter{position:absolute;right:92px;bottom:20px;z-index:8;font:800 17px ui-monospace,SFMono-Regular,Menlo,monospace;color:#78909c}
+    .navhint{position:absolute;right:92px;top:30px;z-index:8;font:700 14px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:#6f8793}
+    .progress{position:absolute;left:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--coral),var(--aqua));z-index:9}
+    .flow{display:flex;align-items:center;justify-content:center;gap:16px;flex:1;min-height:0}.arrow{font-size:42px;color:var(--coral);font-weight:900}
+    .node{min-width:180px;padding:24px 26px;border:2px solid #3b5969;border-radius:22px;background:var(--panel);font-size:25px;font-weight:850;text-align:center}
+    .node small{display:block;font-size:17px;line-height:1.25;color:var(--muted);font-weight:600;margin-top:9px}.node.hot{border-color:var(--aqua);box-shadow:0 0 42px rgba(81,226,194,.13)}
+    .equation{padding:24px 28px;border:2px solid #3c5968;border-left:10px solid var(--coral);border-radius:0 20px 20px 0;background:#0b1d28;font:720 28px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#e7f0f3}
+    .equation.big{font-size:35px}.equation .sub{display:block;color:var(--muted);font-size:21px;font-weight:600;margin-top:8px}
+    pre{margin:0;white-space:pre-wrap;overflow:hidden;padding:25px 28px;border:1px solid #355260;border-radius:20px;background:#07141d;color:#e9f2f4;font:650 22px/1.46 ui-monospace,SFMono-Regular,Menlo,monospace}
+    .promptbox{position:relative;padding:30px 32px 26px;border:2px solid var(--aqua);border-radius:24px;background:#071820;box-shadow:0 0 60px rgba(81,226,194,.08)}
+    .promptbox:before{content:"COPYABLE AI PROMPT";position:absolute;top:-14px;left:24px;padding:5px 12px;background:var(--aqua);color:#062019;border-radius:99px;font:900 14px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}
+    .promptbox pre{padding:0;border:0;background:transparent;font-size:21px;line-height:1.44}.promptbox .slot{color:var(--gold)}
+    .paper-frame{height:100%;min-height:480px;display:flex;align-items:center;justify-content:center;padding:18px;border:1px solid #385565;border-radius:24px;background:white;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)}
+    .paper-frame img{display:block;width:100%;height:100%;object-fit:contain}.paper-frame.tall{min-height:650px}
+    .filetree{padding:28px 34px;border:1px solid #355260;border-radius:24px;background:#081923;font:700 26px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#dbe8ec}
+    .filetree .ro{color:var(--blue)}.filetree .rw{color:var(--aqua)}.filetree .hide{color:var(--coral)}
+    .timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;align-items:stretch;flex:1}.event{position:relative;padding:27px 22px 22px;border:1px solid var(--line);border-top:8px solid var(--aqua);border-radius:22px;background:var(--panel)}
+    .event:nth-child(2n){border-top-color:var(--coral)}.event b{display:block;font-size:38px;margin-bottom:16px}.event span{font-size:22px;line-height:1.3;color:var(--muted)}
+    .event:after{content:"→";position:absolute;right:-27px;top:44%;font-size:32px;color:var(--gold);z-index:2}.event:last-child:after{display:none}
+    table{width:100%;border-collapse:collapse;font-size:22px;background:rgba(10,29,40,.55);border-radius:20px;overflow:hidden}
+    th{text-align:left;padding:14px 16px;color:var(--aqua);font:800 16px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid #3b5867}
+    td{padding:15px 16px;border-bottom:1px solid #294553;color:#b9c9d0}td:first-child{font-weight:800;color:var(--white)}tr:last-child td{border-bottom:0}.up{color:var(--aqua);font-weight:900}
+    .barset{display:grid;gap:18px}.barrow{display:grid;grid-template-columns:260px 1fr 110px;gap:18px;align-items:center}.barrow span{font-size:22px;font-weight:800}.track{height:34px;background:#132c3b;border-radius:99px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--aqua));border-radius:99px}.barrow b{font-size:24px;color:var(--white)}
+    .role{display:grid;grid-template-columns:1fr auto 1fr;gap:28px;align-items:center;flex:1}.role .side{height:72%;padding:34px;border:1px solid var(--line);border-radius:25px;background:var(--panel)}
+    .role .side.ai{border-top:9px solid var(--aqua)}.role .side.human{border-top:9px solid var(--coral)}.role ul{padding-left:24px;font-size:25px;line-height:1.55;color:var(--muted)}.role .plus{font-size:60px;color:var(--gold)}
+    .matrix{display:grid;grid-template-columns:220px repeat(4,1fr);gap:10px;align-items:stretch}.mcell{padding:18px;border:1px solid #2e4b5a;border-radius:14px;background:#102330;font-size:20px;color:var(--muted)}
+    .mcell.head{color:var(--aqua);font-weight:850}.mcell.row{color:var(--white);font-weight:800}.mcell.on{background:#194334;color:#b9ffe8;border-color:#3b997e}.mcell.off{background:#34221f;color:#ffc6ba;border-color:#865046}
+    .ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;align-items:end;flex:1}.rung{padding:24px 21px;border:1px solid #3a5867;border-radius:20px 20px 5px 5px;background:var(--panel);display:flex;flex-direction:column;justify-content:flex-end}
+    .rung:nth-child(1){height:38%}.rung:nth-child(2){height:50%}.rung:nth-child(3){height:63%}.rung:nth-child(4){height:78%}.rung:nth-child(5){height:94%;border-color:var(--aqua)}.rung b{font-size:25px}.rung span{font-size:19px;line-height:1.3;color:var(--muted);margin-top:10px}
+    .title-slide{padding:0;background:#050e16}.title-slide:before{background:radial-gradient(circle at 77% 48%,rgba(81,226,194,.16),transparent 31%),radial-gradient(circle at 24% 54%,rgba(255,118,95,.11),transparent 28%),linear-gradient(rgba(255,255,255,.024) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.024) 1px,transparent 1px);background-size:auto,auto,54px 54px,54px 54px}
+    .road-cover{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:560px minmax(0,1fr);gap:60px;align-items:center;padding:78px 88px}
+    .road-copy{position:relative}.road-copy:after{content:"";display:block;width:138px;height:8px;margin-top:38px;border-radius:99px;background:linear-gradient(90deg,var(--coral),var(--aqua))}
+    .road-copy h1{max-width:560px;letter-spacing:-.06em}.road-prefix{display:block;margin-bottom:13px;color:var(--aqua);font:900 31px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase}.road-brand{display:block;color:var(--white);font-size:110px;line-height:.84}.road-build{display:block;margin-top:31px;color:var(--white);font-size:54px;line-height:1.03;letter-spacing:-.045em}.road-build strong{color:var(--coral)}
+    .road-figure{position:relative;padding:18px;border:1px solid rgba(196,220,230,.45);border-radius:30px;background:#f8f6f1;box-shadow:0 34px 100px rgba(0,0,0,.42),0 0 80px rgba(81,226,194,.08);overflow:hidden}.road-figure:before{content:"";position:absolute;left:0;top:0;width:100%;height:8px;background:linear-gradient(90deg,var(--aqua),var(--blue),var(--coral));z-index:2}.road-figure img{display:block;width:100%;height:auto;border-radius:17px}
+    .role-spec-slide .content{padding-bottom:48px}.role-spec-slide h2{font-size:50px;max-width:1736px;margin-bottom:24px}.role-posts{display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;min-height:0}.role-post{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:17px;padding:24px;border-radius:27px;overflow:hidden;box-shadow:0 26px 80px rgba(0,0,0,.25)}.role-post.openai{background:#020609;border:1px solid #3d5868}.role-post.anthropic{background:#f4f1e9;border:1px solid #d6cfc1;color:#151515}.role-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px}.role-company{padding:8px 12px;border-radius:99px;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.openai .role-company{color:#062019;background:var(--aqua)}.anthropic .role-company{color:white;background:#151515}.role-head h3{max-width:590px;margin:0;font-size:31px;line-height:1.02;text-align:right}.anthropic .role-head h3{color:#151515}.role-excerpt{min-height:0;display:grid;place-items:center;border-radius:18px;overflow:hidden}.openai .role-excerpt{background:#000}.anthropic .role-excerpt{background:#f7f4ed}.role-excerpt img{display:block;width:114%;height:auto;max-width:none;object-fit:contain}.role-summary{font-size:22px;line-height:1.2;font-weight:820;color:#b7c8cf}.anthropic .role-summary{color:#34312c}
+    .env-catalog-slide{background:radial-gradient(circle at 76% 46%,rgba(81,226,194,.1),transparent 29%),radial-gradient(circle at 13% 72%,rgba(112,167,255,.09),transparent 27%),#07131c}.env-catalog-slide h2{font-size:61px;margin-bottom:8px}.env-kicker{font-size:25px;color:#96abb5}.world-track{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:18px;flex:1;align-items:center;margin-top:18px;padding-bottom:40px}.world-track:before{content:"";position:absolute;left:25px;right:25px;top:43%;height:3px;background:linear-gradient(90deg,rgba(112,167,255,.35),rgba(255,201,92,.45),rgba(81,226,194,.5));box-shadow:0 0 22px rgba(81,226,194,.12)}.world{position:relative;z-index:2;display:grid;grid-template-rows:430px auto auto;gap:10px;min-width:0;text-align:center}.world-visual{position:relative;height:430px;display:grid;place-items:center;overflow:hidden;border:1px solid #31505f;border-radius:28px;background:linear-gradient(155deg,#132b39,#091923 75%);box-shadow:0 22px 60px rgba(0,0,0,.28)}.world-visual:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.055),transparent 30%);pointer-events:none}.world h3{font-size:25px;line-height:1;margin:0;color:var(--white)}.world-paper{font:850 15px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:#7f98a4}.world-reward{font:760 17px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;color:#acc0c9}.world.selected{transform:translateY(-7px)}.world.selected .world-visual{border:3px solid var(--aqua);background:linear-gradient(155deg,#153b3b,#0a2228 75%);box-shadow:0 26px 80px rgba(0,0,0,.35),0 0 45px rgba(81,226,194,.16)}.world.selected h3,.world.selected .world-reward{color:var(--aqua)}.build-flag{position:absolute;left:50%;top:18px;transform:translateX(-50%);z-index:3;white-space:nowrap;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;color:var(--aqua)}
+    .soko-board{display:grid;grid-template-columns:repeat(5,42px);grid-template-rows:repeat(5,42px);gap:5px;padding:14px;border-radius:18px;background:#071018;box-shadow:0 16px 35px rgba(0,0,0,.35)}.soko-board i{position:relative;display:block;border-radius:7px;background:#132a37}.soko-board .wall{background:#476779;box-shadow:inset 0 0 0 3px #658596}.soko-board .goal:after{content:"";position:absolute;inset:12px;border:4px solid var(--coral);border-radius:50%}.soko-board .box{background:var(--gold);box-shadow:inset 0 0 0 5px #d79f35}.soko-board .player:after{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--aqua);box-shadow:0 0 18px rgba(81,226,194,.45)}
+    .phone-shell{position:relative;width:164px;height:324px;padding:34px 16px 18px;border:7px solid #78909c;border-radius:34px;background:#071018;box-shadow:0 18px 42px rgba(0,0,0,.45)}.phone-shell:before{content:"";position:absolute;top:12px;left:54px;width:45px;height:7px;border-radius:9px;background:#566f7b}.phone-row{display:flex;align-items:center;justify-content:space-between;padding:13px 8px;border-bottom:1px solid #294553;color:#d9e6ea;font-size:15px;font-weight:800}.toggle{width:37px;height:21px;padding:3px;border-radius:20px;background:#24404d}.toggle:after{content:"";display:block;width:15px;height:15px;margin-left:16px;border-radius:50%;background:var(--aqua)}.phone-msg{margin-top:18px;padding:12px;border-radius:13px 13px 3px 13px;background:#16483d;color:#d7fff3;font-size:14px;line-height:1.25;text-align:left}
+    .ticket{position:relative;width:222px;padding:24px 20px 22px;border-radius:21px;background:#f4efe4;color:#13232d;box-shadow:0 20px 42px rgba(0,0,0,.35);text-align:left}.ticket:after{content:"";position:absolute;left:0;right:0;top:126px;border-top:3px dashed #c7bda9}.ticket .route{display:flex;align-items:center;justify-content:space-between;font-size:28px;font-weight:950}.ticket .plane{color:#e55c49}.ticket .ticket-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:48px;font:800 14px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:#58646a}.ticket .ticket-status{margin-top:18px;padding-top:15px;border-top:2px solid #d7cebd;font-size:17px;font-weight:900;color:#19745e}
+    .code-window{width:228px;border:1px solid #45616f;border-radius:18px;overflow:hidden;background:#040c12;box-shadow:0 20px 45px rgba(0,0,0,.42);text-align:left}.code-top,.browser-top{height:34px;display:flex;align-items:center;gap:7px;padding:0 12px;background:#17303d}.dot{width:9px;height:9px;border-radius:50%;background:#ff765f}.dot:nth-child(2){background:#ffc95c}.dot:nth-child(3){background:#51e2c2}.code-lines{padding:20px 18px;font:720 14px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:#a8bcc5}.code-lines .minus{color:#ff8b79}.code-lines .plusline{color:#79e9ce}.testline{margin:0 18px 18px;padding:11px 13px;border:1px solid #2f6959;border-radius:10px;background:#0d2924;color:#8bf4d8;font:850 14px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}
+    .data-window{width:232px;border:1px solid #4e8f82;border-radius:20px;overflow:hidden;background:#07151c;box-shadow:0 20px 48px rgba(0,0,0,.4);text-align:left}.data-file{padding:13px 16px;background:#13353a;color:#bffeed;font:850 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.data-grid{display:grid;grid-template-columns:1.3fr .7fr .8fr;margin:14px;border:1px solid #31515e}.data-grid span{padding:8px 6px;border-right:1px solid #31515e;border-bottom:1px solid #31515e;font:720 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#b8c9d0}.data-chart{position:relative;height:112px;margin:12px 16px 18px;border-left:2px solid #486673;border-bottom:2px solid #486673}.data-chart i{position:absolute;bottom:0;width:25px;background:linear-gradient(var(--aqua),#1c755f);border-radius:5px 5px 0 0}.data-chart i:nth-child(1){left:18px;height:42px}.data-chart i:nth-child(2){left:59px;height:74px}.data-chart i:nth-child(3){left:100px;height:55px}.data-chart i:nth-child(4){left:141px;height:94px}
+    .browser-window{width:230px;border:1px solid #42606e;border-radius:18px;overflow:hidden;background:#e9edf0;box-shadow:0 20px 45px rgba(0,0,0,.42);text-align:left}.browser-top{background:#203946}.address{height:22px;margin:10px 12px;border-radius:7px;background:white}.web-body{padding:18px}.web-title{width:72%;height:17px;margin-bottom:18px;border-radius:4px;background:#213744}.web-row{height:34px;margin-bottom:10px;border:2px solid #bdc8ce;border-radius:7px;background:white}.web-button{width:56%;height:36px;margin-top:18px;border-radius:7px;background:#276dde;box-shadow:0 8px 18px rgba(39,109,222,.25)}
+    .ragen-slide{background:radial-gradient(circle at 18% 57%,rgba(112,167,255,.1),transparent 30%),radial-gradient(circle at 85% 58%,rgba(255,201,92,.08),transparent 28%),#07131c}.ragen-slide h2{font-size:59px;margin-bottom:22px}.ragen-layout{display:grid;grid-template-columns:1.24fr .76fr;gap:48px;align-items:center;flex:1;min-height:0;padding-bottom:28px}.ragen-figure{position:relative;height:666px;padding:72px 22px 22px;border:1px solid #526c79;border-radius:28px;background:#fff;overflow:hidden;box-shadow:0 28px 86px rgba(0,0,0,.36)}.ragen-figure img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:72% 52%}.ragen-views{position:absolute;left:22px;right:22px;top:20px;display:grid;grid-template-columns:1fr 1fr;gap:18px}.ragen-views span{text-align:center;font:900 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;color:#405765}.ragen-views span:last-child{color:#0b876f}.ragen-scan{position:absolute;z-index:3;top:76px;bottom:26px;left:4%;width:5px;border-radius:99px;background:var(--aqua);opacity:0;box-shadow:0 0 0 8px rgba(81,226,194,.08),0 0 30px rgba(81,226,194,.8)}.ragen-mechanics{height:666px;display:flex;flex-direction:column;justify-content:center;padding-left:42px;border-left:2px solid #2d4a59}.llm-process{display:grid;grid-template-columns:76px minmax(0,1fr);gap:17px;align-items:center;margin-bottom:18px}.llm-orb{width:76px;height:76px;display:grid;place-items:center;border:2px solid var(--aqua);border-radius:50%;background:#0b2d30;color:var(--aqua);font:950 19px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:0 0 28px rgba(81,226,194,.16)}.llm-thought span{display:block;margin-bottom:9px;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;color:#83a0ac}.llm-thought code{display:block;width:0;max-width:100%;overflow:hidden;white-space:nowrap;color:#dce9ed;font:780 19px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;border-right:3px solid transparent}.ragen-label{font:900 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:var(--aqua);text-transform:uppercase}.ragen-action{margin:10px 0 21px;font:950 62px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-.05em;color:var(--white);transform-origin:left center}.ragen-action code{color:var(--gold)}.ragen-change{font-size:24px;line-height:1.28;color:#a9bbc4;margin-bottom:23px}.ragen-change strong{color:var(--white)}.ragen-rewards{display:grid;grid-template-columns:1fr auto;gap:0;border-top:1px solid #355260;border-bottom:1px solid #355260}.ragen-rewards span,.ragen-rewards b{padding:11px 0;border-bottom:1px solid #243f4d;font-size:20px}.ragen-rewards span:nth-last-child(-n+2),.ragen-rewards b:nth-last-child(-n+2){border-bottom:0}.ragen-rewards span{color:#a9bbc4}.ragen-rewards b{color:var(--white);font:900 21px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}.ragen-rewards b.good{color:var(--aqua)}.ragen-rewards b.cost{color:var(--coral)}.ragen-trace{margin-top:23px;padding:16px 20px;border-left:7px solid var(--coral);background:#0c202b;font:820 19px/1.42 ui-monospace,SFMono-Regular,Menlo,monospace;color:#dce8ec}.ragen-trace .rstate{color:var(--blue)}.ragen-trace .raction{color:var(--gold)}.ragen-trace .rreward{color:var(--aqua)}
+    .slide.active .ragen-scan{animation:scanObservation 7.2s cubic-bezier(.25,.7,.25,1) infinite}.slide.active .llm-orb{animation:llmPulse 7.2s ease-in-out infinite}.slide.active .llm-thought code{animation:typeThought 7.2s steps(31,end) infinite}.slide.active .ragen-action{animation:emitAction 7.2s ease-in-out infinite}.slide.active .ragen-figure img{animation:worldResponds 7.2s ease-in-out infinite}.slide.active .reward-live{animation:rewardFeedback 7.2s ease-in-out infinite}.slide.active .ragen-trace span{animation:tracePulse 7.2s ease-in-out infinite}.slide.active .ragen-trace .raction{animation-delay:.45s}.slide.active .ragen-trace .rreward{animation-delay:.9s}.slide.active .ragen-trace .rstate:last-of-type{animation-delay:1.35s}
+    @keyframes scanObservation{0%,4%,29%,100%{opacity:0;left:4%}8%{opacity:1}25%{opacity:1;left:47%}}
+    @keyframes llmPulse{0%,22%,100%{transform:scale(1);box-shadow:0 0 28px rgba(81,226,194,.16)}28%,43%{transform:scale(1.08);box-shadow:0 0 48px rgba(81,226,194,.45)}}
+    @keyframes typeThought{0%,19%{width:0;opacity:0;border-color:transparent}23%{opacity:1;border-color:var(--aqua)}43%,82%{width:100%;opacity:1;border-color:var(--aqua)}88%,100%{width:100%;opacity:.4;border-color:transparent}}
+    @keyframes emitAction{0%,37%{opacity:.2;transform:translateX(-16px) scale(.94)}44%,64%{opacity:1;transform:none}72%,100%{opacity:.45;transform:none}}
+    @keyframes worldResponds{0%,49%,100%{transform:scale(1);filter:none}56%,66%{transform:scale(1.018);filter:saturate(1.22) contrast(1.03)}}
+    @keyframes rewardFeedback{0%,56%,84%,100%{background:transparent;text-shadow:none}62%,76%{background:rgba(255,118,95,.13);text-shadow:0 0 20px rgba(255,118,95,.5)}}
+    @keyframes tracePulse{0%,62%,100%{filter:brightness(.72)}69%,83%{filter:brightness(1.45);text-shadow:0 0 18px currentColor}}
+    .show-all .ragen-scan{display:none}.show-all .llm-orb,.show-all .llm-thought code,.show-all .ragen-action,.show-all .ragen-figure img,.show-all .reward-live,.show-all .ragen-trace span{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}.show-all .llm-thought code{width:100%;border-color:transparent}
+    @media (prefers-reduced-motion:reduce){.slide.active .ragen-scan,.slide.active .llm-orb,.slide.active .llm-thought code,.slide.active .ragen-action,.slide.active .ragen-figure img,.slide.active .reward-live,.slide.active .ragen-trace span{animation:none!important}.ragen-scan{display:none}.llm-thought code{width:100%;border-right:0}}
+    .soko-live-shell{height:666px;display:flex;flex-direction:column;align-items:center;padding:22px 28px 19px;border:1px solid #42606f;border-radius:28px;background:linear-gradient(155deg,#132a37,#07151d 80%);box-shadow:0 28px 86px rgba(0,0,0,.36)}.soko-game-head{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font:900 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;color:#8ba2ad}.soko-game-head strong{color:var(--aqua)}.soko-board-wrap{position:relative;padding:16px;border:1px solid #385968;border-radius:24px;background:#050b0f;box-shadow:inset 0 0 44px rgba(0,0,0,.5),0 18px 48px rgba(0,0,0,.32)}.soko-live-board{--cell:76px;--gap:6px;position:relative;width:486px;height:486px;display:grid;grid-template-columns:repeat(6,var(--cell));grid-template-rows:repeat(6,var(--cell));gap:var(--gap)}.soko-live-board .tile{display:block;border-radius:8px;background:#0b1820;box-shadow:inset 0 0 0 1px #132d39}.soko-live-board .tile.wall{background:repeating-linear-gradient(0deg,transparent 0 30px,rgba(255,255,255,.18) 31px 35px),repeating-linear-gradient(90deg,#a84308 0 34px,#6f2a07 35px 40px);box-shadow:inset 0 0 0 3px #ce6d2e}.soko-sprite{position:absolute;left:0;top:0;width:76px;height:76px;transform:translate(var(--x),var(--y));transition:transform .34s cubic-bezier(.2,.8,.2,1),filter .25s,box-shadow .25s;z-index:4}.soko-goal{--x:328px;--y:328px;display:grid;place-items:center;border:5px solid var(--coral);border-radius:16px;background:#230b0b;box-shadow:inset 0 0 0 7px #070d11,0 0 22px rgba(255,118,95,.28);z-index:2}.soko-goal:before,.soko-goal:after{content:"";position:absolute;background:#ff2f2f;border-radius:3px}.soko-goal:before{width:38px;height:9px}.soko-goal:after{width:9px;height:38px}.soko-crate{--x:164px;--y:164px;border:5px solid #f0a320;border-radius:12px;background:linear-gradient(145deg,#ffd64f,#d97808);box-shadow:inset 0 0 0 6px rgba(132,67,0,.28),0 8px 22px rgba(0,0,0,.4)}.soko-crate:before,.soko-crate:after{content:"";position:absolute;left:12px;top:31px;width:42px;height:8px;border-radius:4px;background:#9f5606}.soko-crate:before{transform:rotate(45deg)}.soko-crate:after{transform:rotate(-45deg)}.soko-crate.on-goal{filter:saturate(1.3) brightness(1.12);box-shadow:inset 0 0 0 6px rgba(132,67,0,.2),0 0 34px rgba(81,226,194,.75)}.soko-player{--x:164px;--y:82px;display:grid;place-items:center;border:4px solid #79f0d4;border-radius:24px;background:linear-gradient(145deg,#1ec9a4,#087963);color:#03130f;font:950 17px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:0 0 28px rgba(81,226,194,.35)}.soko-player:before{content:"";position:absolute;top:14px;left:18px;width:9px;height:9px;border-radius:50%;background:#03130f;box-shadow:22px 0 #03130f}.soko-player span{margin-top:24px}.soko-live-shell.resetting .soko-sprite{transition:none}.soko-game-legend{display:flex;gap:26px;align-items:center;margin-top:14px;font:800 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#819aa6}.soko-game-legend b{color:var(--aqua)}.soko-game-legend .crate-key{color:var(--gold)}.soko-game-legend .goal-key{color:var(--coral)}.soko-solved{position:absolute;inset:16px;z-index:8;display:grid;place-items:center;text-align:center;border-radius:18px;background:rgba(3,13,17,.86);opacity:0;transform:scale(.94);transition:.3s ease;pointer-events:none}.soko-solved strong{font-size:72px;line-height:.9;color:var(--aqua);text-shadow:0 0 35px rgba(81,226,194,.5)}.soko-solved span{display:block;margin-top:18px;font:900 22px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:#e9f7f3}.soko-live-shell.solved .soko-solved{opacity:1;transform:none}
+    .soko-control{height:666px;display:flex;flex-direction:column;justify-content:center;padding-left:42px;border-left:2px solid #2d4a59}.soko-control-label{font:900 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:var(--aqua)}.soko-action-display{display:grid;grid-template-columns:112px 1fr;gap:22px;align-items:center;margin:18px 0}.soko-action-arrow{width:112px;height:112px;display:grid;place-items:center;border:2px solid var(--gold);border-radius:25px;background:#302612;color:var(--gold);font-size:74px;line-height:1;box-shadow:0 0 30px rgba(255,201,92,.12);transition:.2s}.soko-action-copy span{display:block;margin-bottom:8px;color:#829ba6;font:850 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.soko-action-copy strong{display:block;font-size:57px;line-height:.95;color:var(--white);letter-spacing:-.04em}.soko-command{display:block;padding:15px 18px;border:1px solid #3a5968;border-radius:14px;background:#07151d;color:var(--gold);font:820 21px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}.soko-feedback{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;margin:20px 0;padding:18px 20px;border-left:7px solid var(--coral);background:#0d222d}.soko-feedback span{font-size:20px;line-height:1.25;color:#b1c3ca}.soko-feedback b{font:950 22px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--coral);text-align:right;white-space:pre-line}.soko-actions-title{margin-bottom:10px;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;color:#78919d}.soko-action-sequence{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-bottom:20px}.soko-action-sequence i{height:44px;display:grid;place-items:center;border:1px solid #304e5d;border-radius:10px;background:#0d202b;color:#728994;font-style:normal;font-size:26px;transition:.22s}.soko-action-sequence i.done{border-color:#2f806d;background:#123c34;color:var(--aqua)}.soko-action-sequence i.active{border-color:var(--gold);background:#3b2d11;color:var(--gold);transform:translateY(-5px);box-shadow:0 8px 18px rgba(255,201,92,.16)}.soko-reward-key{display:grid;grid-template-columns:1fr auto;gap:0;border-top:1px solid #355260}.soko-reward-key span,.soko-reward-key b{padding:11px 0;border-bottom:1px solid #243f4d;font-size:19px}.soko-reward-key span{color:#9eb2bb}.soko-reward-key b{font:900 20px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--white)}.soko-reward-key b.good{color:var(--aqua)}.soko-reward-key b.cost{color:var(--coral)}
+    .cover-soko-slide{background:radial-gradient(circle at 18% 57%,rgba(112,167,255,.1),transparent 30%),radial-gradient(circle at 85% 58%,rgba(255,201,92,.08),transparent 28%),#07131c}.cover-soko-slide h1{max-width:none;margin-bottom:22px;font-size:54px;line-height:1;letter-spacing:-.045em;white-space:nowrap}.cover-soko-slide .ragen-layout{padding-bottom:0}.cover-soko-slide .soko-control-label{color:var(--aqua)}
+    .toolphone-slide{background:radial-gradient(circle at 24% 59%,rgba(112,167,255,.11),transparent 30%),radial-gradient(circle at 83% 62%,rgba(81,226,194,.08),transparent 31%),#07131c}.toolphone-slide h2{font-size:58px;margin-bottom:20px}.toolphone-layout{display:grid;grid-template-columns:.92fr 1.08fr;gap:48px;align-items:center;flex:1;min-height:0;padding-bottom:28px}.toolphone-world,.toolphone-console{height:676px}.toolphone-world{display:flex;flex-direction:column;align-items:center;padding:20px 28px 24px;border:1px solid #42606f;border-radius:28px;background:linear-gradient(155deg,#132a37,#07151d 80%);box-shadow:0 28px 86px rgba(0,0,0,.36)}.toolphone-world-head{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;color:#8ba2ad;font:900 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.toolphone-world-head strong{color:var(--coral)}.toolphone-world.cell-on .toolphone-world-head strong{color:var(--aqua)}.toolphone-user{position:relative;width:590px;margin-bottom:14px;padding:15px 20px 15px 58px;border:1px solid #3b5968;border-radius:18px;background:#0b202b;color:#eef5f6;font-size:20px;line-height:1.23;font-weight:760}.toolphone-user:before{content:"USER";position:absolute;left:15px;top:16px;color:var(--blue);font:950 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-device{position:relative;width:330px;height:530px;padding:27px 18px 18px;border:9px solid #8298a3;border-radius:45px;background:#040b10;box-shadow:0 22px 55px rgba(0,0,0,.46);overflow:hidden;transition:.28s}.toolphone-device:before{content:"";position:absolute;z-index:5;left:111px;top:8px;width:90px;height:11px;border-radius:20px;background:#273b45}.toolphone-statusbar{height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;color:#91a6b0;font:850 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.toolphone-status-signal{color:var(--coral)}.toolphone-world.cell-on .toolphone-status-signal{color:var(--aqua)}.toolphone-app-title{display:flex;align-items:center;justify-content:space-between;height:49px;padding:0 10px;border-bottom:1px solid #294653;color:#eef5f6;font-size:19px;font-weight:900}.toolphone-app-title span{color:#72909d;font:850 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-setting{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #294653;color:#c8d6dc;font-size:18px;font-weight:820}.toolphone-toggle{position:relative;width:52px;height:29px;border-radius:99px;background:#63352f;box-shadow:inset 0 0 0 2px #a95a4d;transition:.28s}.toolphone-toggle:after{content:"";position:absolute;left:5px;top:5px;width:19px;height:19px;border-radius:50%;background:#ffd2ca;transition:.28s}.toolphone-world.cell-on .toolphone-toggle{background:#17614f;box-shadow:inset 0 0 0 2px #35b697}.toolphone-world.cell-on .toolphone-toggle:after{left:28px;background:#bfffee}.toolphone-contact{height:80px;display:grid;grid-template-columns:42px 1fr;gap:11px;align-items:center;padding:8px 10px;border-bottom:1px solid #294653}.toolphone-avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#243d4a;color:#9eb4bd;font-size:19px;font-weight:950}.toolphone-contact-copy b{display:block;margin-bottom:5px;color:#526b76;font-size:16px;transition:.25s}.toolphone-contact-copy span{display:block;color:#455e6a;font:780 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;transition:.25s}.toolphone-world.contact-known .toolphone-avatar{background:#173c36;color:var(--aqua);box-shadow:0 0 20px rgba(81,226,194,.18)}.toolphone-world.contact-known .toolphone-contact-copy b{color:#e7f1f3}.toolphone-world.contact-known .toolphone-contact-copy span{color:#86a3ae}.toolphone-thread{position:relative;height:204px;padding:15px 10px;background:linear-gradient(#07131a,#091923)}.toolphone-thread-label{color:#57717d;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-message{position:absolute;right:11px;bottom:18px;width:238px;padding:12px 13px;border-radius:15px 15px 4px 15px;background:#155345;color:#dbfff5;font-size:15px;line-height:1.25;font-weight:730;opacity:0;transform:translateY(16px) scale(.94);transition:.3s}.toolphone-message span{display:block;margin-top:7px;color:#8fe9d2;font:850 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}.toolphone-world.message-sent .toolphone-message{opacity:1;transform:none}.toolphone-toast{position:absolute;z-index:8;left:19px;right:19px;bottom:20px;padding:15px 17px;border:1px solid #bf5c4c;border-radius:14px;background:#4b211d;color:#ffd4cc;font:850 14px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:0;transform:translateY(18px);transition:.25s;box-shadow:0 12px 34px rgba(0,0,0,.45)}.toolphone-world.phone-error .toolphone-toast{opacity:1;transform:none}.toolphone-world.solved .toolphone-device{border-color:#75d9c1;box-shadow:0 22px 55px rgba(0,0,0,.46),0 0 40px rgba(81,226,194,.23)}
+    .toolphone-console{display:flex;flex-direction:column;justify-content:center;padding-left:42px;border-left:2px solid #2d4a59}.toolphone-label{display:flex;align-items:center;justify-content:space-between;color:var(--aqua);font:900 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.toolphone-label strong{color:#829ba6}.toolphone-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:15px 0 18px}.toolphone-step{height:48px;display:grid;place-items:center;border:1px solid #304e5d;border-radius:11px;background:#0d202b;color:#728994;font:850 13px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;transition:.22s}.toolphone-step.done{border-color:#2f806d;background:#123c34;color:var(--aqua)}.toolphone-step.active{border-color:var(--gold);background:#3b2d11;color:var(--gold);transform:translateY(-4px);box-shadow:0 8px 18px rgba(255,201,92,.16)}.toolphone-call{padding:17px 20px;border:1px solid #3a5968;border-radius:17px;background:#07151d}.toolphone-call-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}.toolphone-call-head span{color:#829ba6;font:850 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-call-head strong{color:var(--gold);font:900 24px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.toolphone-call code{display:block;min-height:53px;color:#d8e7eb;font:760 17px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}.toolphone-return{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin:14px 0 17px;padding:15px 18px;border-left:7px solid var(--blue);background:#0c202b}.toolphone-return span{color:#7f99a5;font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-return code{color:#c8d8de;font:800 16px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}.toolphone-return.error{border-left-color:var(--coral);background:#2f1918}.toolphone-return.error code{color:#ffc2b7}.toolphone-return.success{border-left-color:var(--aqua);background:#0f2b27}.toolphone-return.success code{color:#a8f4df}.toolphone-verifier-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;color:#7f99a5;font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.toolphone-verifier-head strong{color:var(--coral);font-size:16px}.toolphone-verifier-head strong.pass{color:var(--aqua)}.toolphone-milestones{display:grid;grid-template-columns:1fr 1fr;gap:7px}.toolphone-milestone{position:relative;min-height:58px;padding:10px 10px 9px 45px;border:1px solid #2d4b59;border-radius:11px;background:#0b1d27;color:#78909b;font-size:15px;line-height:1.2;font-weight:760;transition:.24s}.toolphone-milestone:before{content:"○";position:absolute;left:14px;top:16px;color:#526d79;font:900 22px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.toolphone-milestone.pass{border-color:#337e6d;background:#12322e;color:#d9f8ef}.toolphone-milestone.pass:before{content:"✓";color:var(--aqua)}.toolphone-slide .source{bottom:-46px}.env-anatomy-strip{flex:0 0 94px;display:grid;grid-template-columns:270px repeat(4,1fr);gap:0;align-items:stretch;margin-top:7px;border-top:1px solid #355260;border-bottom:1px solid #243f4d}.env-anatomy-title{display:flex;align-items:center;padding-right:26px;color:var(--white);font-size:21px;line-height:1.13;font-weight:900}.env-anatomy-title span{color:var(--aqua)}.env-anatomy-item{display:flex;flex-direction:column;justify-content:center;padding:8px 18px;border-left:1px solid #294553}.env-anatomy-item b{margin-bottom:6px;color:var(--gold);font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.env-anatomy-item span{color:#9fb2bb;font-size:15px;line-height:1.3}.env-anatomy-item i{color:#e7f0f2;font-style:normal;font-weight:850}.show-all .toolphone-step{transform:none}.show-all .toolphone-device,.show-all .toolphone-message,.show-all .toolphone-toast,.show-all .toolphone-toggle,.show-all .toolphone-toggle:after{transition:none}
+    .state-dep-slide{background:radial-gradient(circle at 18% 57%,rgba(112,167,255,.1),transparent 30%),radial-gradient(circle at 84% 59%,rgba(255,118,95,.08),transparent 30%),#07131c}.state-dep-slide h2{font-size:59px;margin-bottom:24px}.sd-layout{display:grid;grid-template-columns:.88fr 1.12fr;gap:50px;align-items:center;flex:1;min-height:0;padding-bottom:30px}.sd-chart{height:680px;padding:30px 34px 26px;border:1px solid #42606f;border-radius:28px;background:linear-gradient(155deg,#132a37,#07151d 80%);box-shadow:0 28px 86px rgba(0,0,0,.36)}.sd-chart-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:23px}.sd-chart-head strong{font-size:24px;line-height:1.05}.sd-chart-head span{color:#87a0ab;font:850 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.sd-family{padding:18px 0 20px;border-top:1px solid #355260}.sd-family:first-of-type{border-top:0}.sd-family-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.sd-family-head span{color:#8ba2ad;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.sd-family-head b{color:var(--coral);font:900 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.sd-bar-row{display:grid;grid-template-columns:190px 1fr 62px;gap:14px;align-items:center;margin:13px 0}.sd-bar-row>span{color:#dce7eb;font-size:19px;font-weight:820}.sd-track{height:37px;border-radius:8px;overflow:hidden;background:repeating-linear-gradient(90deg,#122b38 0 calc(25% - 1px),#284554 calc(25% - 1px) 25%)}.sd-fill{width:var(--score);height:100%;border-radius:8px;background:linear-gradient(90deg,#1a806a,var(--aqua));transform-origin:left center}.sd-fill.lower{background:linear-gradient(90deg,#a33f32,var(--coral))}.sd-bar-row>strong{font:950 25px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}.sd-bar-row.good>strong{color:var(--aqua)}.sd-bar-row.bad>strong{color:var(--coral)}.sd-chart-callout{margin-top:12px;padding-top:19px;border-top:1px solid #355260;color:#a8bbc3;font-size:20px;line-height:1.32}.sd-chart-callout strong{color:var(--white)}
+    .sd-mechanism{height:680px;display:flex;flex-direction:column;justify-content:center;padding-left:42px;border-left:2px solid #2d4a59}.sd-mech-label{margin-bottom:18px;color:var(--aqua);font:900 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em}.sd-case{padding:23px 24px;border-top:1px solid #355260}.sd-case.wrong{border-left:7px solid var(--coral);background:linear-gradient(90deg,rgba(255,118,95,.1),transparent 75%)}.sd-case.right{margin-top:18px;border-left:7px solid var(--aqua);background:linear-gradient(90deg,rgba(81,226,194,.1),transparent 75%)}.sd-case-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:19px}.sd-case-head span{font:950 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.sd-case.wrong .sd-case-head span{color:var(--coral)}.sd-case.right .sd-case-head span{color:var(--aqua)}.sd-case-head strong{color:#849da8;font-size:17px}.sd-parallel-flow{display:grid;grid-template-columns:115px 52px 1fr 52px 120px;gap:10px;align-items:center}.sd-agent-node,.sd-outcome{height:88px;display:grid;place-items:center;border:1px solid #3b5968;border-radius:17px;background:#0b202b;font:950 20px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.sd-fork{color:var(--gold);font-size:45px;font-weight:900;text-align:center}.sd-action-stack{display:grid;gap:10px}.sd-action-node{padding:13px 15px;border:1px solid #3a5968;border-radius:12px;background:#07151d;color:#dce9ed;font:800 16px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}.sd-outcome{border-color:#a64f41;background:#351a18;color:var(--coral);text-align:center}.sd-outcome small{display:block;margin-top:8px;font-size:13px;letter-spacing:.08em}.sd-sequential-flow{display:grid;grid-template-columns:1fr 35px 130px 35px 1fr 35px 92px;gap:8px;align-items:center}.sd-sequential-flow .sd-action-node{padding:17px 13px;text-align:center}.sd-seq-arrow{color:#6f8995;font-size:28px;font-weight:950;text-align:center}.sd-state-node{padding:16px 12px;border:1px solid #427467;border-radius:12px;background:#102f2a;color:#aaf5df;font:850 15px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.sd-pass{height:60px;display:grid;place-items:center;border:1px solid #3c9c83;border-radius:14px;background:#123d34;color:var(--aqua);font:950 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.sd-lesson{margin-top:24px;color:#a8bbc3;font-size:24px;line-height:1.28}.sd-lesson strong{color:var(--white)}
+    .slide.active .sd-fill{animation:sdBarGrow 8s ease-out infinite}.slide.active .sd-case.wrong .sd-action-node{animation:sdParallelFlash 8s ease-in-out infinite}.slide.active .sd-case.wrong .sd-outcome{animation:sdFailFlash 8s ease-in-out infinite}.slide.active .sd-case.right .sd-action-node:first-child{animation:sdSeqOne 8s ease-in-out infinite}.slide.active .sd-state-node{animation:sdSeqTwo 8s ease-in-out infinite}.slide.active .sd-case.right .sd-action-node:nth-of-type(2){animation:sdSeqThree 8s ease-in-out infinite}.slide.active .sd-pass{animation:sdSeqPass 8s ease-in-out infinite}@keyframes sdBarGrow{0%,4%{transform:scaleX(0)}17%,100%{transform:scaleX(1)}}@keyframes sdParallelFlash{0%,16%,48%,100%{filter:none;transform:none}23%,39%{filter:brightness(1.5);transform:translateY(-3px);border-color:var(--gold)}}@keyframes sdFailFlash{0%,27%,52%,100%{opacity:.3;transform:scale(.96)}34%,45%{opacity:1;transform:none;box-shadow:0 0 30px rgba(255,118,95,.25)}}@keyframes sdSeqOne{0%,50%,82%,100%{filter:none;transform:none}56%,66%{filter:brightness(1.55);transform:translateY(-3px);border-color:var(--gold)}}@keyframes sdSeqTwo{0%,59%,86%,100%{filter:none;transform:none}65%,74%{filter:brightness(1.55);transform:translateY(-3px)}}@keyframes sdSeqThree{0%,67%,90%,100%{filter:none;transform:none}73%,81%{filter:brightness(1.55);transform:translateY(-3px);border-color:var(--gold)}}@keyframes sdSeqPass{0%,75%,94%,100%{opacity:.35;transform:scale(.94)}81%,90%{opacity:1;transform:none;box-shadow:0 0 30px rgba(81,226,194,.25)}}.show-all .sd-fill,.show-all .sd-action-node,.show-all .sd-outcome,.show-all .sd-state-node,.show-all .sd-pass{animation:none!important;transform:none!important;filter:none!important;opacity:1!important}@media (prefers-reduced-motion:reduce){.slide.active .sd-fill,.slide.active .sd-action-node,.slide.active .sd-outcome,.slide.active .sd-state-node,.slide.active .sd-pass{animation:none!important;transform:none!important;filter:none!important;opacity:1!important}}
+    .harness-slide{background:radial-gradient(circle at 24% 57%,rgba(81,226,194,.11),transparent 31%),radial-gradient(circle at 83% 54%,rgba(168,140,255,.1),transparent 29%),#07131c}.harness-slide .content{padding-bottom:42px}.harness-slide h2{font-size:58px;margin-bottom:14px}.hl-layout{display:grid;grid-template-columns:minmax(0,1fr) 490px;gap:66px;align-items:center;flex:1;min-height:0}.hl-map{position:relative;height:596px;border:1px solid #355765;border-radius:30px;background:linear-gradient(150deg,rgba(17,43,56,.92),rgba(5,18,26,.96) 75%);box-shadow:0 28px 86px rgba(0,0,0,.34);overflow:hidden}.hl-map:before{content:"THE DEPLOY-TIME LOOP";position:absolute;left:30px;top:25px;color:#7f9aa5;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.13em}.hl-loop-lines{position:absolute;inset:0;width:100%;height:100%}.hl-loop-lines>path{fill:none;stroke:#52707d;stroke-width:4}.hl-loop-lines .prompt-edge{stroke:var(--aqua)}.hl-loop-lines .action-edge{stroke:var(--gold)}.hl-loop-lines .observation-edge{stroke:var(--blue)}.hl-packet{filter:drop-shadow(0 0 8px currentColor)}.hl-node{position:absolute;display:flex;flex-direction:column;justify-content:center;padding:26px 28px;border:2px solid #456473;border-radius:24px;background:#0b202b;box-shadow:0 18px 50px rgba(0,0,0,.3)}.hl-node b{display:block;font-size:34px;line-height:1;letter-spacing:-.025em}.hl-node span{display:block;margin-top:12px;color:#9eb2bb;font-size:19px;line-height:1.25;font-weight:700}.hl-node .hl-owner{display:inline-flex;align-self:flex-start;margin-top:16px;padding:8px 11px;border-radius:99px;background:var(--aqua);color:#062019;font:950 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em}.hl-harness{left:36px;top:196px;width:350px;height:202px;border-color:var(--aqua);box-shadow:0 18px 50px rgba(0,0,0,.3),0 0 42px rgba(81,226,194,.1)}.hl-model{right:44px;top:83px;width:330px;height:160px;border-color:var(--violet)}.hl-model b{color:#d8ceff}.hl-world{right:44px;bottom:66px;width:330px;height:172px;border-color:var(--gold)}.hl-world b{color:#ffe39f}.hl-edge-label{position:absolute;padding:7px 11px;border-radius:8px;background:#081923;color:#a9bbc4;font:850 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}.hl-edge-label.prompt{left:495px;top:106px;color:var(--aqua)}.hl-edge-label.action{right:24px;top:276px;color:var(--gold);transform:rotate(90deg)}.hl-edge-label.observe{left:483px;bottom:100px;color:var(--blue)}.hl-trainer{height:596px;display:flex;flex-direction:column;justify-content:center;padding-left:44px;border-left:2px solid #2d4a59}.hl-trainer-kicker{color:var(--violet);font:950 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.hl-trainer h3{margin:15px 0 10px;font-size:41px}.hl-trainer-copy{font-size:21px;line-height:1.25;color:#91a8b2}.hl-call-stream{position:relative;display:grid;gap:10px;margin:23px 0 18px;padding-left:30px}.hl-call-stream:before{content:"";position:absolute;left:8px;top:10px;bottom:10px;width:3px;border-radius:3px;background:linear-gradient(var(--aqua),var(--violet))}.hl-call{display:grid;grid-template-columns:62px 1fr;align-items:center;min-height:58px;padding:11px 16px;border:1px solid #3b5968;border-radius:13px;background:#0a1c26;color:#dce8ec;font:850 18px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace}.hl-call span{color:var(--aqua)}.hl-call i{color:#8fa5af;font-style:normal}.hl-reward{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-left:6px solid var(--coral);background:#2b1918;color:#d8c0bc;font-size:18px;font-weight:800}.hl-reward b{color:var(--coral);font:950 22px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.hl-update{margin-top:16px;padding:18px 20px;border:2px solid var(--violet);border-radius:17px;background:#1b1930;color:#f0ecff;font-size:22px;font-weight:900;text-align:center}.hl-update small{display:block;margin-top:7px;color:#a99dd4;font:780 14px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}.hl-weights{margin-top:14px;color:var(--aqua);font:900 16px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.hl-takeaway{margin-top:12px;color:#acc0c8;font-size:24px;line-height:1.25}.hl-takeaway strong{color:var(--white)}
+    .slide.active .hl-harness{animation:hlHarness 8s ease-in-out infinite}.slide.active .hl-model{animation:hlModel 8s ease-in-out infinite}.slide.active .hl-world{animation:hlWorld 8s ease-in-out infinite}.slide.active .hl-call:nth-child(1){animation:hlCall 8s ease-in-out 2.2s infinite}.slide.active .hl-call:nth-child(2){animation:hlCall 8s ease-in-out 3.05s infinite}.slide.active .hl-call:nth-child(3){animation:hlCall 8s ease-in-out 3.9s infinite}.slide.active .hl-update{animation:hlUpdate 8s ease-in-out infinite}@keyframes hlHarness{0%,100%{box-shadow:0 18px 50px rgba(0,0,0,.3),0 0 24px rgba(81,226,194,.08)}8%,23%{box-shadow:0 18px 50px rgba(0,0,0,.3),0 0 52px rgba(81,226,194,.35)}}@keyframes hlModel{0%,13%,100%{filter:none}20%,35%{filter:brightness(1.32);transform:translateY(-4px)}}@keyframes hlWorld{0%,31%,100%{filter:none}39%,55%{filter:brightness(1.27);transform:translateY(-4px)}}@keyframes hlCall{0%,12%,100%{border-color:#3b5968;background:#0a1c26;transform:none}18%,35%{border-color:var(--aqua);background:#10352f;transform:translateX(7px)}}@keyframes hlUpdate{0%,58%,100%{box-shadow:none;filter:none}67%,84%{box-shadow:0 0 34px rgba(168,140,255,.28);filter:brightness(1.2)}}.show-all .hl-node,.show-all .hl-call,.show-all .hl-update{animation:none!important;transform:none!important;filter:none!important}@media (prefers-reduced-motion:reduce){.hl-packet{display:none}.slide.active .hl-node,.slide.active .hl-call,.slide.active .hl-update{animation:none!important;transform:none!important;filter:none!important}}
+    .boundary-slide{background:radial-gradient(circle at 17% 55%,rgba(112,167,255,.1),transparent 29%),radial-gradient(circle at 84% 60%,rgba(81,226,194,.11),transparent 30%),#07131c}.boundary-slide .content{padding-bottom:42px}.boundary-slide h2{font-size:58px;margin-bottom:7px}.cb-subtitle{margin-bottom:17px;color:#a9bbc4;font-size:25px;line-height:1.25}.cb-subtitle strong{color:var(--white)}.cb-board{padding:17px 24px 14px;border:1px solid #3a5a69;border-radius:28px;background:linear-gradient(150deg,rgba(17,43,56,.94),rgba(5,18,26,.97) 78%);box-shadow:0 26px 78px rgba(0,0,0,.31)}.cb-head,.cb-row{display:grid;grid-template-columns:420px repeat(4,108px) minmax(0,1fr);gap:12px;align-items:center}.cb-head{height:36px;color:#8199a4;font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;text-align:center}.cb-head span:first-child,.cb-head span:last-child{text-align:left}.cb-row{min-height:122px;border-top:1px solid #2d4b59}.cb-task b{display:block;margin-bottom:7px;color:var(--white);font-size:24px;line-height:1}.cb-task span{display:block;color:#8fa6b0;font-size:17px;line-height:1.2;font-weight:750}.cb-outcome{height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #456371;border-radius:16px;background:#0b1d27;transform-origin:center}.cb-outcome b{font:950 31px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.cb-outcome span{margin-top:7px;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.cb-outcome.win{border-color:#2f806d;background:#123b33;color:var(--aqua)}.cb-outcome.fail{border-color:#8e483e;background:#311a19;color:var(--coral)}.cb-decision{min-height:78px;display:flex;flex-direction:column;justify-content:center;padding:14px 19px;border-left:7px solid;border-radius:0 16px 16px 0;background:#0b1d27}.cb-decision b{display:block;margin-bottom:7px;font:950 21px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.05em}.cb-decision span{display:block;color:#9bb0b9;font-size:16px;line-height:1.18;font-weight:760}.cb-decision.drop{border-color:var(--coral);background:linear-gradient(90deg,rgba(255,118,95,.11),#0b1d27 68%)}.cb-decision.drop b{color:var(--coral)}.cb-decision.keep{border-color:var(--aqua);background:linear-gradient(90deg,rgba(81,226,194,.14),#0b1d27 68%)}.cb-decision.keep b{color:var(--aqua)}.cb-decision.sample{border-color:var(--gold);background:linear-gradient(90deg,rgba(255,201,92,.12),#0b1d27 68%)}.cb-decision.sample b{color:var(--gold)}.cb-explain{margin-top:16px;padding:14px 20px 14px 23px;border-left:7px solid var(--aqua);background:#0c202b;color:#a9bbc4;font-size:21px;line-height:1.28}.cb-explain strong{color:var(--white)}.slide.active .cb-outcome,.slide.active .cb-decision{animation:cbPulse 10s ease-in-out infinite;animation-delay:var(--delay)}.slide.active .cb-row.boundary{animation:cbBoundary 10s ease-in-out infinite}@keyframes cbPulse{0%,12%{filter:brightness(1.42);transform:translateY(-4px) scale(1.04);box-shadow:0 0 25px rgba(255,255,255,.1)}18%,100%{filter:none;transform:none;box-shadow:none}}@keyframes cbBoundary{0%,79%,100%{filter:none}84%,95%{filter:brightness(1.18);box-shadow:inset 0 0 0 2px rgba(81,226,194,.25),0 0 34px rgba(81,226,194,.1)}}.show-all .cb-outcome,.show-all .cb-decision,.show-all .cb-row.boundary{animation:none!important;filter:none!important;transform:none!important;box-shadow:none!important}@media (prefers-reduced-motion:reduce){.slide.active .cb-outcome,.slide.active .cb-decision,.slide.active .cb-row.boundary{animation:none!important;filter:none!important;transform:none!important;box-shadow:none!important}}
+    .grpo-slide{background:radial-gradient(circle at 16% 58%,rgba(112,167,255,.11),transparent 30%),radial-gradient(circle at 84% 58%,rgba(168,140,255,.11),transparent 30%),#07131c}.grpo-slide .content{padding-bottom:42px}.grpo-slide h2{font-size:57px;margin-bottom:6px}.grpo-subtitle{margin-bottom:16px;color:#a9bbc4;font-size:24px}.grpo-subtitle strong{color:var(--white)}.grpo-stage{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:34px;min-height:0;flex:1}.grpo-rollouts{position:relative;padding:68px 22px 18px;border:1px solid #3a5a69;border-radius:28px;background:linear-gradient(150deg,rgba(17,43,56,.94),rgba(5,18,26,.97) 78%);box-shadow:0 26px 78px rgba(0,0,0,.31)}.grpo-task{position:absolute;left:50%;top:17px;transform:translateX(-50%);padding:12px 25px;border:2px solid var(--blue);border-radius:99px;background:#112c3b;color:#dceaff;font:950 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;white-space:nowrap}.grpo-lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grpo-lane{padding:15px 14px 13px;border:1px solid #3d5b69;border-radius:20px;background:#0a1b25}.grpo-lane.win{border-top:6px solid var(--aqua)}.grpo-lane.fail{border-top:6px solid var(--coral)}.grpo-lane-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;color:#dce7eb;font:900 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.grpo-lane-head span{color:#78919d;font-size:12px}.grpo-trace{position:relative;display:grid;gap:7px;padding-left:17px}.grpo-trace:before{content:"";position:absolute;left:5px;top:14px;bottom:14px;width:3px;border-radius:3px;background:#294a59}.grpo-trace span{position:relative;padding:10px 9px;border:1px solid #345260;border-radius:10px;background:#0d222d;color:#afc0c7;font:800 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.grpo-trace span:before{content:"";position:absolute;left:-17px;top:15px;width:9px;height:9px;border-radius:50%;background:#526f7c}.grpo-reward{margin-top:11px;padding:11px;border-radius:11px;text-align:center;font:950 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.win .grpo-reward{border:1px solid #31836e;background:#123a32;color:var(--aqua)}.fail .grpo-reward{border:1px solid #8a463c;background:#321b1a;color:var(--coral)}.grpo-relative{margin-top:8px;color:#8ca3ad;font:850 12px/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.win .grpo-relative{color:var(--aqua)}.fail .grpo-relative{color:var(--coral)}.grpo-mean{margin-top:13px;padding:13px 18px;border:2px solid var(--gold);border-radius:14px;background:#302712;color:#ffe5a8;font:900 16px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;transform-origin:left}.grpo-update{display:flex;flex-direction:column;justify-content:center;padding:25px 27px;border:1px solid #3a5666;border-radius:28px;background:linear-gradient(150deg,#151b31,#091721 72%);box-shadow:0 26px 78px rgba(0,0,0,.28)}.grpo-update-label{color:var(--violet);font:950 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.grpo-model{width:146px;height:146px;display:grid;place-items:center;align-self:center;margin:18px 0;border:3px solid var(--violet);border-radius:50%;background:#211d3b;color:#e3dcff;font:950 35px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:0 0 36px rgba(168,140,255,.17)}.grpo-signal{position:relative;margin:8px 0;padding:15px 16px 15px 52px;border-left:7px solid;border-radius:0 14px 14px 0;background:#0b1d27}.grpo-signal:before{position:absolute;left:17px;top:16px;font:950 25px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.grpo-signal b{display:block;margin-bottom:5px;font:950 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.grpo-signal span{display:block;color:#a8bac2;font-size:16px;line-height:1.2;font-weight:760}.grpo-signal.good{border-color:var(--aqua)}.grpo-signal.good:before{content:"↑";color:var(--aqua)}.grpo-signal.good b{color:var(--aqua)}.grpo-signal.bad{border-color:var(--coral)}.grpo-signal.bad:before{content:"↓";color:var(--coral)}.grpo-signal.bad b{color:var(--coral)}.grpo-policy{margin-top:17px;padding:15px;border:2px solid var(--violet);border-radius:14px;background:#211d3b;color:#eeeaff;font:950 18px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.grpo-explain{margin-top:14px;padding-left:21px;border-left:7px solid var(--aqua);color:#a9bbc4;font-size:20px;line-height:1.27}.grpo-explain strong{color:var(--white)}.slide.active .grpo-task{animation:grpoTask 9s ease-in-out infinite}.slide.active .grpo-trace span:nth-child(1){animation:grpoStep1 9s ease-in-out infinite}.slide.active .grpo-trace span:nth-child(2){animation:grpoStep2 9s ease-in-out infinite}.slide.active .grpo-trace span:nth-child(3){animation:grpoStep3 9s ease-in-out infinite}.slide.active .grpo-reward{animation:grpoReward 9s ease-in-out infinite}.slide.active .grpo-mean{animation:grpoMean 9s ease-in-out infinite}.slide.active .grpo-relative{animation:grpoRelative 9s ease-in-out infinite}.slide.active .grpo-signal{animation:grpoSignal 9s ease-in-out infinite}.slide.active .grpo-model,.slide.active .grpo-policy{animation:grpoUpdate 9s ease-in-out infinite}@keyframes grpoTask{0%,100%{box-shadow:none}5%,16%{box-shadow:0 0 32px rgba(112,167,255,.35);filter:brightness(1.25)}}@keyframes grpoStep1{0%,13%,29%,100%{filter:none;transform:none}17%,25%{filter:brightness(1.55);transform:translateY(-2px);border-color:var(--blue)}}@keyframes grpoStep2{0%,23%,39%,100%{filter:none;transform:none}27%,35%{filter:brightness(1.55);transform:translateY(-2px);border-color:var(--gold)}}@keyframes grpoStep3{0%,33%,49%,100%{filter:none;transform:none}37%,45%{filter:brightness(1.55);transform:translateY(-2px);border-color:var(--violet)}}@keyframes grpoReward{0%,44%,62%,100%{opacity:.28;transform:scale(.94)}50%,58%{opacity:1;transform:none;box-shadow:0 0 24px rgba(255,255,255,.1)}}@keyframes grpoMean{0%,55%,70%,100%{opacity:.3;transform:scaleX(.2)}61%,67%{opacity:1;transform:scaleX(1)}}@keyframes grpoRelative{0%,62%,76%,100%{opacity:.25}68%,73%{opacity:1}}@keyframes grpoSignal{0%,70%,88%,100%{filter:none;transform:translateX(-8px);opacity:.35}76%,84%{filter:brightness(1.35);transform:none;opacity:1}}@keyframes grpoUpdate{0%,82%,100%{filter:none;box-shadow:none}88%,97%{filter:brightness(1.25);box-shadow:0 0 38px rgba(168,140,255,.3)}}.show-all .grpo-task,.show-all .grpo-trace span,.show-all .grpo-reward,.show-all .grpo-mean,.show-all .grpo-relative,.show-all .grpo-signal,.show-all .grpo-model,.show-all .grpo-policy{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}@media (prefers-reduced-motion:reduce){.slide.active .grpo-task,.slide.active .grpo-trace span,.slide.active .grpo-reward,.slide.active .grpo-mean,.slide.active .grpo-relative,.slide.active .grpo-signal,.slide.active .grpo-model,.slide.active .grpo-policy{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}}
+    .weighting-slide{background:radial-gradient(circle at 17% 58%,rgba(112,167,255,.1),transparent 30%),radial-gradient(circle at 82% 61%,rgba(255,118,95,.08),transparent 31%),#07131c}.weighting-slide .content{padding-bottom:44px}.weighting-slide h2{font-size:61px;margin-bottom:5px}.rw-subtitle{margin-bottom:15px;color:#a9bbc4;font-size:25px;line-height:1.25}.rw-subtitle strong{color:var(--white)}.rw-stage{display:grid;grid-template-columns:1.08fr .92fr;gap:48px;align-items:stretch;flex:1;min-height:0}.rw-splitter{display:flex;flex-direction:column;justify-content:center;padding:28px 30px;border:1px solid #3a5a69;border-radius:28px;background:linear-gradient(150deg,rgba(17,43,56,.93),rgba(5,18,26,.96) 78%);box-shadow:0 26px 78px rgba(0,0,0,.31)}.rw-panel-label{margin-bottom:18px;color:#88a0ab;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.rw-run-row{display:grid;grid-template-columns:260px 54px 1fr;gap:15px;align-items:center;min-height:178px;padding:17px 0;border-top:1px solid #2d4b59}.rw-run-row:first-of-type{border-top:0}.rw-rollout{position:relative;min-height:128px;padding:23px 22px;border:2px solid var(--blue);border-radius:19px;background:#0b2230}.rw-run-row.b .rw-rollout{border-color:var(--gold);background:#2b2414}.rw-rollout b{display:block;color:#d9e8ef;font:950 24px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.rw-rollout span{display:block;margin-top:12px;color:#91a7b1;font-size:17px;line-height:1.2;font-weight:760}.rw-rollout em{position:absolute;right:16px;top:15px;color:var(--aqua);font:950 17px/1 ui-monospace,SFMono-Regular,Menlo,monospace;font-style:normal}.rw-run-arrow{color:#6f8995;font-size:38px;font-weight:950;text-align:center}.rw-samples{display:grid;gap:10px}.rw-samples.three{grid-template-columns:repeat(3,1fr)}.rw-sample{min-height:80px;display:flex;flex-direction:column;justify-content:center;padding:13px 14px;border:1px solid #446472;border-radius:14px;background:#0b1d27}.rw-sample strong{color:var(--white);font:900 16px/1.1 ui-monospace,SFMono-Regular,Menlo,monospace}.rw-sample span{margin-top:8px;color:#86a0ab;font:750 14px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace}.rw-sample.single{border-color:var(--blue)}.rw-samples.three .rw-sample{border-color:var(--gold)}.rw-split-reason{margin-top:8px;color:#778f9a;font:780 13px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.rw-weighting{display:grid;grid-template-rows:1fr 1fr;gap:18px}.rw-weight-panel{display:flex;flex-direction:column;justify-content:center;padding:24px 27px;border-left:8px solid var(--coral);border-radius:0 23px 23px 0;background:linear-gradient(90deg,rgba(255,118,95,.11),rgba(11,30,40,.95) 65%);box-shadow:0 18px 55px rgba(0,0,0,.22)}.rw-weight-panel.fix{border-left-color:var(--aqua);background:linear-gradient(90deg,rgba(81,226,194,.1),rgba(11,30,40,.95) 65%)}.rw-weight-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.rw-weight-head b{font-size:23px;line-height:1}.rw-weight-head span{color:var(--coral);font:950 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.rw-weight-panel.fix .rw-weight-head span{color:var(--aqua)}.rw-weight-row{display:grid;grid-template-columns:105px 1fr 86px;gap:13px;align-items:center;margin:9px 0}.rw-weight-row>span{color:#dce7eb;font-size:18px;font-weight:850}.rw-weight-row>strong{color:var(--white);font:950 21px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:right}.rw-weight-panel.naive .rw-weight-row:last-of-type>strong{color:var(--coral)}.rw-weight-panel.fix .rw-weight-row>strong{color:var(--aqua)}.rw-weight-track{height:34px;display:flex;gap:5px;border-radius:8px;background:#102a37;overflow:hidden}.rw-weight-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,#3a67a9,var(--blue));transform-origin:left}.rw-weight-fill.one-third{width:32%}.rw-weight-fill.full{width:96%;background:linear-gradient(90deg,#9a3c31,var(--coral))}.rw-weight-panel.fix .rw-weight-fill{width:32%;background:linear-gradient(90deg,#1b7c67,var(--aqua))}.rw-weight-panel.fix .rw-weight-fill.equal-total{width:96%}.rw-weight-note{margin-top:12px;color:#9fb2bb;font-size:17px;line-height:1.25;font-weight:760}.rw-weight-note strong{color:var(--white)}.rw-paragraph{margin-top:14px;padding-left:22px;border-left:7px solid var(--aqua);color:#a9bbc4;font-size:22px;line-height:1.32}.rw-paragraph strong{color:var(--white)}
+    .slide.active .rw-sample.single{animation:rwSampleA 9s ease-in-out infinite}.slide.active .rw-samples.three .rw-sample:nth-child(1){animation:rwSampleB1 9s ease-in-out infinite}.slide.active .rw-samples.three .rw-sample:nth-child(2){animation:rwSampleB2 9s ease-in-out infinite}.slide.active .rw-samples.three .rw-sample:nth-child(3){animation:rwSampleB3 9s ease-in-out infinite}.slide.active .rw-weight-panel.naive{animation:rwNaive 9s ease-in-out infinite}.slide.active .rw-weight-panel.fix{animation:rwFix 9s ease-in-out infinite}.slide.active .rw-weight-panel.naive .rw-weight-fill.full{animation:rwOverweight 9s ease-in-out infinite}@keyframes rwSampleA{0%,7%,100%{opacity:.32;transform:scale(.96)}12%,94%{opacity:1;transform:none}}@keyframes rwSampleB1{0%,22%,100%{opacity:.28;transform:translateX(-12px)}27%,94%{opacity:1;transform:none}}@keyframes rwSampleB2{0%,29%,100%{opacity:.28;transform:translateX(-12px)}34%,94%{opacity:1;transform:none}}@keyframes rwSampleB3{0%,36%,100%{opacity:.28;transform:translateX(-12px)}41%,94%{opacity:1;transform:none}}@keyframes rwNaive{0%,43%,67%,100%{box-shadow:0 18px 55px rgba(0,0,0,.22);filter:none}48%,62%{box-shadow:0 0 38px rgba(255,118,95,.22);filter:brightness(1.15)}}@keyframes rwFix{0%,65%,93%,100%{box-shadow:0 18px 55px rgba(0,0,0,.22);filter:none}71%,88%{box-shadow:0 0 40px rgba(81,226,194,.22);filter:brightness(1.14)}}@keyframes rwOverweight{0%,43%{transform:scaleX(.33)}53%,92%{transform:scaleX(1)}100%{transform:scaleX(.33)}}.show-all .rw-sample,.show-all .rw-weight-panel,.show-all .rw-weight-fill{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}@media (prefers-reduced-motion:reduce){.slide.active .rw-sample,.slide.active .rw-weight-panel,.slide.active .rw-weight-fill{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}}
+    .grpo-paragraph{margin-top:16px;padding:17px 20px 17px 23px;border-left:7px solid var(--aqua);background:#0c202b;color:#a9bbc4;font-size:19px;line-height:1.3}.grpo-paragraph strong{color:var(--white)}
+    .slide.active .grpo-task{animation:grpoTaskOnce 11s ease-in-out 1 forwards}.slide.active .grpo-trace span:nth-child(1){animation:grpoStepOne 11s ease-in-out 1 forwards}.slide.active .grpo-trace span:nth-child(2){animation:grpoStepTwo 11s ease-in-out 1 forwards}.slide.active .grpo-trace span:nth-child(3){animation:grpoStepThree 11s ease-in-out 1 forwards}.slide.active .grpo-reward{animation:grpoRewardOnce 11s ease-in-out 1 forwards}.slide.active .grpo-mean{animation:grpoMeanOnce 11s ease-in-out 1 forwards}.slide.active .grpo-relative{animation:grpoRelativeOnce 11s ease-in-out 1 forwards}.slide.active .grpo-signal{animation:grpoSignalOnce 11s ease-in-out 1 forwards}.slide.active .grpo-model,.slide.active .grpo-policy{animation:grpoUpdateOnce 11s ease-in-out 1 forwards}
+    @keyframes grpoTaskOnce{0%,13%{filter:brightness(1.28);box-shadow:0 0 30px rgba(112,167,255,.34)}18%,100%{filter:none;box-shadow:none}}@keyframes grpoStepOne{0%,13%,27%,100%{filter:none;border-color:#345260}17%,23%{filter:brightness(1.55);border-color:var(--blue)}}@keyframes grpoStepTwo{0%,23%,37%,100%{filter:none;border-color:#345260}27%,33%{filter:brightness(1.55);border-color:var(--gold)}}@keyframes grpoStepThree{0%,33%,47%,100%{filter:none;border-color:#345260}37%,43%{filter:brightness(1.55);border-color:var(--violet)}}@keyframes grpoRewardOnce{0%,43%{opacity:.25}51%,100%{opacity:1}}@keyframes grpoMeanOnce{0%,52%{opacity:.25}61%,100%{opacity:1}}@keyframes grpoRelativeOnce{0%,59%{opacity:.25}68%,100%{opacity:1}}@keyframes grpoSignalOnce{0%,67%{opacity:.28;filter:none}76%,84%{opacity:1;filter:brightness(1.3)}89%,100%{opacity:1;filter:none}}@keyframes grpoUpdateOnce{0%,80%{filter:none;box-shadow:none}87%,94%{filter:brightness(1.24);box-shadow:0 0 36px rgba(168,140,255,.3)}100%{filter:none;box-shadow:none}}
+    .grpo-stage{height:610px;flex:0 0 610px}
+    .evo-arch-slide,.evo-example-slide{background:radial-gradient(circle at 16% 58%,rgba(81,226,194,.1),transparent 29%),radial-gradient(circle at 84% 58%,rgba(112,167,255,.1),transparent 30%),#07131c}.evo-arch-slide .content,.evo-example-slide .content{padding-bottom:42px}.evo-arch-slide h2,.evo-example-slide h2{font-size:55px;margin-bottom:7px}.evo-subtitle{margin-bottom:15px;color:#a9bbc4;font-size:23px;line-height:1.25}.evo-subtitle strong{color:var(--white)}
+    .evo-arch-layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;height:570px;flex:0 0 570px}.evo-graph{position:relative;border:1px solid #3a5a69;border-radius:28px;background:linear-gradient(150deg,rgba(17,43,56,.94),rgba(5,18,26,.97) 78%);box-shadow:0 26px 78px rgba(0,0,0,.31);overflow:hidden}.evo-graph-label{position:absolute;z-index:3;left:28px;padding:8px 11px;border-radius:8px;background:#081923;font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em}.evo-graph-label.visible{top:23px;color:var(--blue)}.evo-graph-label.hidden{bottom:23px;color:var(--coral)}.evo-lines{position:absolute;inset:0;width:100%;height:100%}.evo-lines path{fill:none;stroke-width:4;opacity:.2}.evo-lines .visible-path{stroke:var(--blue)}.evo-lines .hidden-path{stroke:var(--coral)}.evo-lines .score-path{stroke:var(--gold)}
+    .evo-node{position:absolute;z-index:2;display:flex;flex-direction:column;justify-content:center;min-height:106px;padding:18px 19px;border:2px solid #456473;border-radius:19px;background:#0b202b;box-shadow:0 16px 40px rgba(0,0,0,.28);opacity:.28}.evo-node b{display:block;margin-bottom:9px;font:950 22px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-node span{display:block;color:#98adb6;font-size:16px;line-height:1.2;font-weight:740}.evo-node.sample{left:3%;top:40%;width:16%;border-color:var(--aqua)}.evo-node.sample b{color:var(--aqua)}.evo-node.render{left:23%;top:12%;width:18%;border-color:var(--blue)}.evo-node.render b,.evo-node.model b{color:#a9c9ff}.evo-node.oracle{left:23%;bottom:12%;width:18%;border-color:var(--coral)}.evo-node.oracle b,.evo-node.reference b{color:#ff9b8a}.evo-node.model{left:48%;top:12%;width:18%;border-color:var(--blue)}.evo-node.reference{left:48%;bottom:12%;width:18%;border-color:var(--coral)}.evo-node.scorer{left:72%;top:40%;width:17%;border-color:var(--gold)}.evo-node.scorer b{color:var(--gold)}.evo-node.reward{right:2%;top:43%;width:7%;min-height:82px;padding:12px 8px;border-color:var(--aqua);text-align:center}.evo-node.reward b{margin:0;color:var(--aqua);font-size:29px}.evo-lock{display:inline-block;margin-left:6px;color:var(--coral)}
+    .evo-admission{display:flex;flex-direction:column;padding:27px 27px 24px;border:1px solid #3a5666;border-radius:28px;background:linear-gradient(150deg,#151b31,#091721 72%);box-shadow:0 26px 78px rgba(0,0,0,.28)}.evo-admission-label{color:var(--violet);font:950 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em}.evo-seed{margin:17px 0 14px;padding:13px 15px;border:1px solid #4d4970;border-radius:13px;background:#211d3b;color:#ded7ff;font:900 15px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.evo-gates{display:grid;gap:9px}.evo-gate{position:relative;min-height:62px;padding:13px 14px 13px 52px;border:1px solid #3a5665;border-radius:13px;background:#0b1d27;opacity:.25}.evo-gate:before{content:"✓";position:absolute;left:17px;top:17px;color:var(--aqua);font:950 21px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-gate b{display:block;margin-bottom:5px;color:#dce7eb;font:900 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-gate span{display:block;color:#8fa5af;font-size:14px;line-height:1.15;font-weight:730}.evo-pool{margin-top:auto;padding:17px 16px;border:2px solid var(--aqua);border-radius:15px;background:#123b33;color:#c8fff1;font:950 17px/1.15 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;opacity:.25}.evo-arch-explain,.evo-example-explain{margin-top:14px;padding:14px 19px 14px 22px;border-left:7px solid var(--aqua);background:#0c202b;color:#a9bbc4;font-size:20px;line-height:1.28}.evo-arch-explain strong,.evo-example-explain strong{color:var(--white)}
+    .evo-example-layout{display:grid;grid-template-columns:360px minmax(0,1fr) 430px;gap:25px;height:445px;flex:0 0 445px}.evo-example-panel{display:flex;flex-direction:column;padding:24px 25px;border:1px solid #3a5a69;border-radius:25px;background:linear-gradient(150deg,rgba(17,43,56,.94),rgba(5,18,26,.97) 78%);box-shadow:0 22px 64px rgba(0,0,0,.27)}.evo-example-label{margin-bottom:16px;color:var(--aqua);font:950 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em}.evo-function{margin-bottom:15px;padding:14px 15px;border:1px solid #3f6070;border-radius:13px;background:#0b202b;color:#dbe7eb;font:850 15px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-function code{color:var(--aqua)}.evo-number-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.evo-number{height:58px;display:grid;place-items:center;border:1px solid #41616f;border-radius:12px;background:#0b1d27;color:#e6eff2;font:950 24px/1 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.22}.evo-target{margin-top:13px;padding:13px;border:2px solid var(--gold);border-radius:13px;background:#302712;color:#ffe5a8;font:950 20px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;opacity:.22}.evo-model-panel{justify-content:center}.evo-prompt{padding:19px 21px;border:2px solid var(--blue);border-radius:17px;background:#10293a;opacity:.22}.evo-prompt small{display:block;margin-bottom:10px;color:#82a9e8;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.evo-prompt strong{display:block;color:#f0f5f7;font-size:21px;line-height:1.25}.evo-prompt-list{margin-top:12px;color:#bcd0d8;font:850 20px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-model-orb{width:94px;height:94px;display:grid;place-items:center;align-self:center;margin:17px 0;border:2px solid var(--violet);border-radius:50%;background:#211d3b;color:#e2dcff;font:950 23px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-model-answer{padding:15px 18px;border-left:7px solid var(--violet);background:#181b31;color:#dcd6ff;font:900 19px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.22}.evo-hidden-panel{border-color:#684940}.evo-hidden-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;color:var(--coral);font:950 14px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.evo-hidden-label span{padding:7px 9px;border-radius:99px;background:#3a1d1a;color:#ffb4a6;font-size:11px}.evo-reference-box{padding:16px 17px;border:1px solid #8c4c41;border-radius:14px;background:#301a18;opacity:.22}.evo-reference-box b{display:block;margin-bottom:8px;color:var(--coral);font:950 16px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-reference-box code{color:#ffd1c8;font:850 19px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-check{margin-top:16px;padding:17px;border:2px solid var(--gold);border-radius:15px;background:#302712;color:#ffe5a8;font:900 18px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.22}.evo-final-reward{margin-top:auto;padding:17px;border:2px solid var(--aqua);border-radius:15px;background:#123b33;color:var(--aqua);font:950 23px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;opacity:.22}.evo-repeat{display:grid;grid-template-columns:230px repeat(3,1fr);gap:13px;align-items:stretch;margin-top:13px}.evo-repeat-title{display:flex;align-items:center;padding:0 18px;border-left:7px solid var(--aqua);background:#0c202b;color:var(--white);font-size:20px;line-height:1.15;font-weight:900}.evo-next{padding:12px 15px;border:1px solid #355564;border-radius:14px;background:#0b1d27;opacity:.22}.evo-next b{display:block;margin-bottom:6px;color:var(--aqua);font:900 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace}.evo-next span{display:block;color:#a9bbc4;font:800 15px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace}
+    .slide.active .evo-animate{animation:evoRevealOnce 1.15s ease-out var(--delay) 1 forwards}.slide.active .evo-path{animation:evoPathOnce .9s ease-out var(--delay) 1 forwards}.slide.active .evo-gate,.slide.active .evo-pool{animation:evoRevealOnce 1s ease-out var(--delay) 1 forwards}@keyframes evoRevealOnce{0%{opacity:.22;filter:none}55%{opacity:1;filter:brightness(1.28)}100%{opacity:1;filter:none}}@keyframes evoPathOnce{0%{opacity:.15;filter:none}65%{opacity:1;filter:drop-shadow(0 0 7px currentColor)}100%{opacity:.75;filter:none}}.show-all .evo-animate,.show-all .evo-path,.show-all .evo-gate,.show-all .evo-pool{animation:none!important;opacity:1!important;filter:none!important}@media (prefers-reduced-motion:reduce){.slide.active .evo-animate,.slide.active .evo-path,.slide.active .evo-gate,.slide.active .evo-pool{animation:none!important;opacity:1!important;filter:none!important}}
+    body.is-title .navhint,body.is-title .counter,body.is-title .progress{opacity:0}
+    .loopviz{height:800px;display:grid;place-items:center;position:relative}.orbit{position:absolute;width:650px;height:650px;border:2px dashed #375665;border-radius:50%;animation:spin 22s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .core{width:280px;height:280px;border:3px solid var(--aqua);border-radius:50%;display:grid;place-items:center;text-align:center;background:#0a2029;box-shadow:0 0 80px rgba(81,226,194,.18);font-size:34px;font-weight:900}.orbnode{position:absolute;padding:19px 25px;border:2px solid #496777;border-radius:99px;background:#102633;font-size:22px;font-weight:850}.orbnode.n1{top:65px}.orbnode.n2{right:20px}.orbnode.n3{bottom:85px}.orbnode.n4{left:10px}
+    .quote{font-size:43px;line-height:1.25;font-weight:800;max-width:1400px;padding-left:32px;border-left:10px solid var(--aqua)}
+    .arch-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:stretch}.arch-box{position:relative;min-height:155px;padding:24px 22px;border:1px solid #3a5968;border-radius:20px;background:#0d2230;display:flex;flex-direction:column;justify-content:center}.arch-box:not(:last-child):after{content:"→";position:absolute;right:-25px;top:52px;z-index:4;color:var(--coral);font-size:30px;font-weight:950}.arch-box b{font-size:27px}.arch-box span{margin-top:10px;color:var(--muted);font-size:19px;line-height:1.25}.arch-box.hot{border-color:var(--aqua);box-shadow:0 0 36px rgba(81,226,194,.12)}
+    .metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:end;flex:1}.metric-card{position:relative;height:500px;padding:35px;border:1px solid #3b5a69;border-radius:28px;background:linear-gradient(160deg,#102b38,#081923);overflow:hidden}.metric-card h3{font-size:31px}.metric-value{position:absolute;left:36px;bottom:43px;font-size:108px;line-height:.85;font-weight:950;letter-spacing:-.075em}.metric-bar{position:absolute;right:46px;bottom:42px;width:145px;border-radius:20px 20px 8px 8px;background:linear-gradient(180deg,var(--blue),#345b91)}.metric-card.rl{border-color:var(--aqua);box-shadow:0 0 54px rgba(81,226,194,.1)}.metric-card.rl .metric-bar{background:linear-gradient(180deg,var(--aqua),#1b7766)}.metric-delta{position:absolute;right:34px;top:30px;padding:11px 16px;border-radius:99px;background:#173e35;color:var(--aqua);font:900 18px ui-monospace,SFMono-Regular,Menlo,monospace}.seed-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-top:18px}.seed-pill{padding:14px;border:1px solid #355462;border-radius:14px;background:#0c202b;text-align:center}.seed-pill b{display:block;color:var(--aqua);font-size:25px}.seed-pill span{font:750 14px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+    .difficulty-grid{display:grid;grid-template-columns:145px 1fr 1fr 125px;gap:12px;align-items:center}.difficulty-grid>div{padding:13px 16px;border-bottom:1px solid #294553;font-size:20px}.difficulty-grid .dh{color:var(--aqua);font:850 15px ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase}.mini-track{height:28px!important;padding:0!important;border:0!important;border-radius:99px;background:#132c3b;overflow:hidden}.mini-track i{display:block;height:100%;border-radius:99px;background:var(--blue)}.mini-track.rl i{background:var(--aqua)}.difficulty-grid .gain{color:var(--aqua);font-weight:900;text-align:right}
+    .prob-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:15px;align-items:stretch;flex:1}.prob-step{position:relative;padding:27px 19px 22px;border:1px solid #365563;border-radius:22px;background:#0d2330;text-align:center}.prob-step .num{position:absolute;top:12px;left:14px;color:#6f8995;font:800 14px ui-monospace,SFMono-Regular,Menlo,monospace}.prob-step .arr{display:block;margin-top:17px;color:var(--gold);font-size:72px;line-height:1}.prob-step strong{display:block;margin-top:18px;font-size:25px}.prob-step .prob{display:block;margin-top:11px;color:var(--aqua);font:850 17px ui-monospace,SFMono-Regular,Menlo,monospace}.prob-step .kind{display:block;margin-top:20px;padding:9px;border-radius:99px;background:#172f3c;color:var(--muted);font-size:15px;font-weight:800}.prob-step:last-child{border-color:var(--aqua);box-shadow:0 0 38px rgba(81,226,194,.14)}.prob-step:last-child .kind{background:#173e35;color:var(--aqua)}
+    .small{font-size:21px}.muted{color:var(--muted)}.warning{padding:20px 24px;border:1px solid #7f5a22;background:#302612;border-radius:17px;color:#ffe0a2;font-size:22px;line-height:1.35}
+    .fragment{opacity:.13;transform:translateY(8px);transition:.28s ease}.fragment.show,.show-all .fragment{opacity:1;transform:none}.show-all .enter{animation:none!important;opacity:1!important;transform:none!important}
+    @media print{html,body{overflow:visible;background:white}#stage{position:static;transform:none!important;width:1920px;height:auto}.slide{display:block!important;position:relative;width:1920px;height:1080px;page-break-after:always;break-after:page}.fragment{opacity:1;transform:none}.counter,.progress,.navhint{display:none!important}}
+  </style>
+</head>
+<body>
+<main id="stage">
+
+  <section class="slide ragen-slide cover-soko-slide" data-slide-id="title" data-source="S08 Figure 9 Appendix C.1">
+    <div class="content">
+      <h1>Road to <span class="aqua">OpenAI:</span> Building an <span class="gold">LLM RL Environment</span> From Scratch</h1>
+      <div class="ragen-layout">
+        <div class="soko-live-shell enter" id="coverSokoLiveShell">
+          <div class="soko-game-head"><span>OUR 19,876-PARAMETER POLICY · RECORDED REPLAY</span><strong id="coverSokoTargetCount">0 / 1 BOXES ON TARGET</strong></div>
+          <div class="soko-board-wrap">
+            <div class="soko-live-board" role="img" aria-label="Animated Sokoban environment on the Road to OpenAI title slide">
+              <i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <div class="soko-sprite soko-goal" aria-label="target"></div>
+              <div class="soko-sprite soko-crate" id="coverSokoCrate" aria-label="box"></div>
+              <div class="soko-sprite soko-player" id="coverSokoPlayer" aria-label="LLM-controlled player"><span>LLM</span></div>
+            </div>
+            <div class="soko-solved"><div><strong>SOLVED</strong><span>1 / 1 box on target · +10 completion</span></div></div>
+          </div>
+          <div class="soko-game-legend"><span><b>LLM</b> = player</span><span class="crate-key">■ = box</span><span class="goal-key">⊕ = target</span></div>
+        </div>
+        <div class="soko-control enter d2">
+          <div class="soko-control-label">FROZEN CHECKPOINT · GREEDY ACTIONS</div>
+          <div class="soko-action-display">
+            <div class="soko-action-arrow" id="coverSokoActionArrow">↓</div>
+            <div class="soko-action-copy"><span id="coverSokoStepLabel">ACTION 01 / 06</span><strong id="coverSokoActionWord">DOWN</strong></div>
+          </div>
+          <code class="soko-command" id="coverSokoCommand">&lt;answer&gt;down&lt;/answer&gt;</code>
+          <div class="soko-feedback"><span id="coverSokoFeedback">The environment executes the move and returns the next board.</span><b id="coverSokoReward">−0.1 action</b></div>
+          <div class="soko-actions-title">ACTUAL HELD-OUT TRAJECTORY</div>
+          <div class="soko-action-sequence" id="coverSokoActionSequence" aria-label="Six-action trained-policy solution path">
+            <i>↓</i><i>↓</i><i>←</i><i>↓</i><i>→</i><i>→</i>
+          </div>
+          <div class="soko-reward-key">
+            <span>box reaches target</span><b class="good">+1</b>
+            <span>puzzle completed</span><b class="good">+10</b>
+            <span>every action</span><b class="cost">−0.1</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide role-spec-slide" data-slide-id="outcome" data-source="S12 S13">
+    <div class="content">
+      <h2>These roles ask you to build environments that <span class="aqua">train</span> and <span class="accent">measure</span> agents.</h2>
+      <div class="role-posts">
+        <article class="role-post openai">
+          <div class="role-head"><span class="role-company">OPENAI</span><h3>Research Engineer,<br>Frontier Evals &amp; Environments</h3></div>
+          <div class="role-excerpt"><img src="assets/openai-role-core.png" alt="OpenAI role responsibilities for RL environments, measurement, training, and continuous evaluation"></div>
+          <p class="role-summary">RL environments · measurement science · continuous evaluation</p>
+        </article>
+        <article class="role-post anthropic">
+          <div class="role-head"><span class="role-company">ANTHROPIC</span><h3>Research Engineer,<br>Universes</h3></div>
+          <div class="role-excerpt"><img src="assets/anthropic-role-core.png" alt="Anthropic role responsibilities for agentic environments, rigorous evaluations, and production training"></div>
+          <p class="role-summary">Agentic worlds · rigorous evaluations · production training</p>
+        </article>
+      </div>
+      <div class="source"><b>S12–S13</b> Official OpenAI and Anthropic postings · captured 2026-08-31 · excerpts preserve the original wording.</div>
+    </div>
+  </section>
+
+  <section class="slide env-catalog-slide" data-slide-id="environment-catalog" data-source="S08 S14 S15 S16 S17 S18">
+    <div class="content">
+      <h2>Six RL worlds we can <span class="aqua">recreate.</span></h2>
+      <p class="env-kicker">Same loop. Different state, actions, and verifier.</p>
+      <div class="world-track">
+        <article class="world selected enter">
+          <div class="world-visual" role="img" aria-label="Sokoban puzzle board">
+            <div class="build-flag">WE BUILD THIS</div>
+            <div class="soko-board">
+              <i class="wall"></i><i class="wall"></i><i class="wall"></i><i class="wall"></i><i class="wall"></i>
+              <i class="wall"></i><i></i><i class="goal"></i><i></i><i class="wall"></i>
+              <i class="wall"></i><i class="box"></i><i></i><i class="player"></i><i class="wall"></i>
+              <i class="wall"></i><i></i><i class="goal"></i><i class="box"></i><i class="wall"></i>
+              <i class="wall"></i><i class="wall"></i><i class="wall"></i><i class="wall"></i><i class="wall"></i>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Puzzle</h3><div class="world-paper">RAGEN · Sokoban</div></div>
+          <div class="world-reward">reward: solved board</div>
+        </article>
+
+        <article class="world enter d2">
+          <div class="world-visual" role="img" aria-label="Phone settings and messaging environment">
+            <div class="phone-shell">
+              <div class="phone-row"><span>Wi-Fi</span><i class="toggle"></i></div>
+              <div class="phone-row"><span>Cellular</span><i class="toggle"></i></div>
+              <div class="phone-msg">Message sent to<br><strong>Fredrik</strong> ✓</div>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Phone</h3><div class="world-paper">ToolSandbox</div></div>
+          <div class="world-reward">reward: final state</div>
+        </article>
+
+        <article class="world enter d3">
+          <div class="world-visual" role="img" aria-label="Airline booking environment">
+            <div class="ticket">
+              <div class="route"><span>SFO</span><span class="plane">→</span><span>LHR</span></div>
+              <div class="ticket-meta"><span>FLIGHT<br>TAU 218</span><span>SEAT<br>14A</span></div>
+              <div class="ticket-status">BOOKING UPDATED ✓</div>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Airline</h3><div class="world-paper">τ-bench</div></div>
+          <div class="world-reward">reward: policy + DB</div>
+        </article>
+
+        <article class="world enter d4">
+          <div class="world-visual" role="img" aria-label="Code editing environment with passing tests">
+            <div class="code-window">
+              <div class="code-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+              <div class="code-lines"><span class="minus">− return None</span><br><span class="plusline">+ return result</span><br><br>$ pytest -q</div>
+              <div class="testline">18 passed ✓</div>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Codebase</h3><div class="world-paper">SWE-Gym</div></div>
+          <div class="world-reward">reward: hidden tests</div>
+        </article>
+
+        <article class="world enter d5">
+          <div class="world-visual" role="img" aria-label="Scientific CSV and chart environment">
+            <div class="data-window">
+              <div class="data-file">assay.csv</div>
+              <div class="data-grid"><span>sample</span><span>dose</span><span>result</span><span>A-01</span><span>0.5</span><span>12.8</span><span>A-02</span><span>1.0</span><span>19.4</span></div>
+              <div class="data-chart"><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Science</h3><div class="world-paper">D3-Gym</div></div>
+          <div class="world-reward">reward: correct artifact</div>
+        </article>
+
+        <article class="world enter d6">
+          <div class="world-visual" role="img" aria-label="Browser application environment">
+            <div class="browser-window">
+              <div class="browser-top"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+              <div class="address"></div>
+              <div class="web-body"><div class="web-title"></div><div class="web-row"></div><div class="web-row"></div><div class="web-button"></div></div>
+            </div>
+          </div>
+          <div class="world-copy"><h3>Browser</h3><div class="world-paper">CUA-Gym</div></div>
+          <div class="world-reward">reward: app state</div>
+        </article>
+      </div>
+      <div class="source"><b>S08 · S14–S18</b> Primary papers and official repositories. Visuals are lightweight recreations of each environment type.</div>
+    </div>
+  </section>
+
+  <section class="slide ragen-slide" data-slide-id="ragen-sokoban" data-source="LOCAL final replay seed 2001">
+    <div class="content">
+    <h2>Recorded: our 20K model <span class="gold">solves the held-out title board.</span></h2>
+      <div class="ragen-layout">
+        <div class="soko-live-shell enter" id="sokoLiveShell">
+          <div class="soko-game-head"><span>SEED 2001 · GREEDY POLICY REPLAY</span><strong id="sokoTargetCount">0 / 1 BOXES ON TARGET</strong></div>
+          <div class="soko-board-wrap">
+            <div class="soko-live-board" role="img" aria-label="Animated Sokoban board solved by a language-model agent">
+              <i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile"></i><i class="tile wall"></i>
+              <i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i><i class="tile wall"></i>
+              <div class="soko-sprite soko-goal" aria-label="target"></div>
+              <div class="soko-sprite soko-crate" id="sokoCrate" aria-label="box"></div>
+              <div class="soko-sprite soko-player" id="sokoPlayer" aria-label="LLM-controlled player"><span>LLM</span></div>
+            </div>
+            <div class="soko-solved" id="sokoSolved"><div><strong>SOLVED</strong><span>1 / 1 box on target · +10 completion</span></div></div>
+          </div>
+          <div class="soko-game-legend"><span><b>LLM</b> = player</span><span class="crate-key">■ = box</span><span class="goal-key">⊕ = target</span></div>
+        </div>
+        <div class="soko-control enter d2">
+        <div class="soko-control-label">MEASURED TRAJECTORY · ONE ACTION AT A TIME</div>
+          <div class="soko-action-display">
+            <div class="soko-action-arrow" id="sokoActionArrow">↓</div>
+            <div class="soko-action-copy"><span id="sokoStepLabel">ACTION 01 / 06</span><strong id="sokoActionWord">DOWN</strong></div>
+          </div>
+          <code class="soko-command" id="sokoCommand">&lt;answer&gt;down&lt;/answer&gt;</code>
+          <div class="soko-feedback"><span id="sokoFeedback">The environment executes the move and returns the next board.</span><b id="sokoReward">−0.1 action</b></div>
+          <div class="soko-actions-title">THE LEARNED 6-STEP TRAJECTORY</div>
+          <div class="soko-action-sequence" id="sokoActionSequence" aria-label="Six-action trained-policy solution path">
+            <i>↓</i><i>↓</i><i>←</i><i>↓</i><i>→</i><i>→</i>
+          </div>
+          <div class="soko-reward-key">
+            <span>box reaches target</span><b class="good">+1</b>
+            <span>puzzle completed</span><b class="good">+10</b>
+            <span>every action</span><b class="cost">−0.1</b>
+          </div>
+        </div>
+      </div>
+      <div class="source"><b>OUR RESULT</b> <code>artifacts/title_board_replay.json</code> · frozen seed-2001 checkpoint · greedy actions D D L D R R · all action probabilities and states are serialized.</div>
+    </div>
+  </section>
+
+  <section class="slide toolphone-slide" data-slide-id="toolsandbox-phone" data-source="S14 Figure 1 Section 2.3">
+    <div class="content">
+      <h2>Example: an LLM <span class="aqua">solves a stateful phone task.</span></h2>
+      <div class="toolphone-layout">
+        <div class="toolphone-world enter" id="toolPhoneWorld">
+          <div class="toolphone-world-head"><span>TOOLSANDBOX · SIMULATED PHONE</span><strong id="toolPhoneNetwork">CELLULAR OFF</strong></div>
+          <div class="toolphone-user">Text Fredrik: “How’s the new album coming along?”</div>
+          <div class="toolphone-device" aria-label="Animated ToolSandbox phone state">
+            <div class="toolphone-statusbar"><span>9:41</span><span class="toolphone-status-signal" id="toolPhoneSignal">NO SERVICE</span></div>
+            <div class="toolphone-app-title">ToolSandbox <span>WORLD STATE</span></div>
+            <div class="toolphone-setting"><span>Cellular service</span><i class="toolphone-toggle"></i></div>
+            <div class="toolphone-contact">
+              <div class="toolphone-avatar">FT</div>
+              <div class="toolphone-contact-copy"><b id="toolPhoneContactName">Contact not queried</b><span id="toolPhoneContactNumber">phone number hidden</span></div>
+            </div>
+            <div class="toolphone-thread">
+              <div class="toolphone-thread-label">MESSAGING DATABASE</div>
+              <div class="toolphone-message">How’s the new album coming along?<span>DELIVERED · [redacted synthetic number]</span></div>
+            </div>
+            <div class="toolphone-toast">ConnectionError: cellular service is not enabled</div>
+          </div>
+        </div>
+        <div class="toolphone-console enter d2">
+          <div class="toolphone-label"><span>RECONSTRUCTED EXAMPLE · ONE TOOL AT A TIME</span><strong id="toolPhonePhase">READY</strong></div>
+          <div class="toolphone-steps" id="toolPhoneSteps" aria-label="Four-step phone-task trajectory">
+            <div class="toolphone-step">1 · FIND<br>CONTACT</div>
+            <div class="toolphone-step">2 · SEND<br>ERROR</div>
+            <div class="toolphone-step">3 · ENABLE<br>CELLULAR</div>
+            <div class="toolphone-step">4 · RETRY<br>SEND</div>
+          </div>
+          <div class="toolphone-call">
+            <div class="toolphone-call-head"><span id="toolPhoneStepLabel">TOOL CALL 01 / 04</span><strong id="toolPhoneToolName">search_contacts</strong></div>
+            <code id="toolPhoneArgs">{"name": "Fredrik Thordendal"}</code>
+          </div>
+          <div class="toolphone-return" id="toolPhoneReturn"><span>ENVIRONMENT RETURNS</span><code id="toolPhoneResponse">awaiting tool call…</code></div>
+          <div class="toolphone-verifier-head"><span>HIDDEN MILESTONE VERIFIER</span><strong id="toolPhoneScore">0 / 4</strong></div>
+          <div class="toolphone-milestones" id="toolPhoneMilestones">
+            <div class="toolphone-milestone">cellular == true</div>
+            <div class="toolphone-milestone">exact contact lookup</div>
+            <div class="toolphone-milestone">send occurs after both</div>
+            <div class="toolphone-milestone">message DB matches</div>
+          </div>
+        </div>
+      </div>
+      <div class="env-anatomy-strip enter d3" aria-label="Sokoban and phone environment comparison">
+        <div class="env-anatomy-title"><div>Different worlds.<br><span>Same RL environment.</span></div></div>
+        <div class="env-anatomy-item"><b>STATE</b><span><i>Sokoban:</i> board positions<br><i>Phone:</i> settings + databases</span></div>
+        <div class="env-anatomy-item"><b>ACTION</b><span><i>Sokoban:</i> move direction<br><i>Phone:</i> tool call</span></div>
+        <div class="env-anatomy-item"><b>FEEDBACK</b><span><i>Sokoban:</i> next board<br><i>Phone:</i> result or error</span></div>
+        <div class="env-anatomy-item"><b>VERIFIER</b><span><i>Sokoban:</i> box on target<br><i>Phone:</i> hidden milestones</span></div>
+      </div>
+      <div class="source"><b>S14 · Figure 1 · §2.3</b> Reconstructed example, not a live model run. Tool sequence, state dependency, and hidden milestones follow ToolSandbox’s documented cellular-off messaging scenario.</div>
+    </div>
+  </section>
+
+  <section class="slide harness-slide" data-slide-id="harnessed-agentic-rl" data-source="S19 Figures 1-2 Introduction">
+    <div class="content">
+      <div class="eyebrow">Agent Lightning v1.0 · August 2026</div>
+      <h2>The harness—not the trainer—<span class="aqua">owns the environment loop.</span></h2>
+      <div class="hl-layout">
+        <div class="hl-map enter" role="img" aria-label="Animated harnessed agentic reinforcement learning loop">
+          <svg class="hl-loop-lines" viewBox="0 0 1120 596" aria-hidden="true">
+            <defs>
+              <marker id="hlArrowAqua" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#51e2c2"/></marker>
+              <marker id="hlArrowGold" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#ffc95c"/></marker>
+              <marker id="hlArrowBlue" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#70a7ff"/></marker>
+            </defs>
+            <path class="prompt-edge" d="M386 253 C500 128 620 112 744 151" marker-end="url(#hlArrowAqua)"/>
+            <path class="action-edge" d="M912 242 C1034 285 1038 345 908 391" marker-end="url(#hlArrowGold)"/>
+            <path class="observation-edge" d="M744 471 C585 550 470 498 383 353" marker-end="url(#hlArrowBlue)"/>
+            <circle class="hl-packet" r="8" fill="#51e2c2"><animateMotion dur="8s" repeatCount="indefinite" begin="0s" path="M386 253 C500 128 620 112 744 151"/></circle>
+            <circle class="hl-packet" r="8" fill="#ffc95c"><animateMotion dur="8s" repeatCount="indefinite" begin="0s" path="M912 242 C1034 285 1038 345 908 391"/></circle>
+            <circle class="hl-packet" r="8" fill="#70a7ff"><animateMotion dur="8s" repeatCount="indefinite" begin="0s" path="M744 471 C585 550 470 498 383 353"/></circle>
+          </svg>
+          <div class="hl-node hl-harness">
+            <b>AGENT HARNESS</b>
+            <span>builds context · chooses control flow · orchestrates tools</span>
+            <div class="hl-owner">OWNS THE LOOP</div>
+          </div>
+          <div class="hl-node hl-model">
+            <b>LLM ENDPOINT</b>
+            <span>receives prompt pᵢ<br>returns response aᵢ</span>
+          </div>
+          <div class="hl-node hl-world">
+            <b>SANDBOX + TOOLS</b>
+            <span>changes state · returns observations · runs verifier</span>
+          </div>
+          <div class="hl-edge-label prompt">prompt pᵢ</div>
+          <div class="hl-edge-label action">response → action</div>
+          <div class="hl-edge-label observe">observation oᵢ</div>
+        </div>
+        <div class="hl-trainer enter d2">
+          <div class="hl-trainer-kicker">WHAT TRAINING OBSERVES</div>
+          <h3>RL trainer</h3>
+          <div class="hl-trainer-copy">It does not run the tools. It intercepts the model calls emitted by the harness.</div>
+          <div class="hl-call-stream" aria-label="Sequence of request response pairs">
+            <div class="hl-call"><span>CALL 1</span><i>(p₁, a₁)</i></div>
+            <div class="hl-call"><span>CALL 2</span><i>(p₂, a₂)</i></div>
+            <div class="hl-call"><span>CALL 3</span><i>(p₃, a₃)</i></div>
+          </div>
+          <div class="hl-reward"><span>verifier returns outcome</span><b>R</b></div>
+          <div class="hl-update">GRPO / PPO UPDATE<small>OPTIMIZE THE POLICY</small></div>
+          <div class="hl-weights">UPDATED WEIGHTS ↺ LLM ENDPOINT</div>
+        </div>
+      </div>
+      <div class="hl-takeaway"><strong>Your environment lives in the harness.</strong> The trainer learns from the model calls that harness exposes.</div>
+      <div class="source"><b>S19 · Figures 1–2 · Introduction</b> Mechanism reconstructed from Agent Lightning v1.0 (2026). It is a conceptual animation, not an independent training result.</div>
+    </div>
+  </section>
+
+  <section class="slide boundary-slide" data-slide-id="capability-boundary" data-source="S19 Section 5.1">
+    <div class="content">
+      <div class="eyebrow">Capability-boundary curriculum · Agent Lightning v1.0</div>
+      <h2>Train on tasks the model can solve <span class="aqua">sometimes.</span></h2>
+      <p class="cb-subtitle"><strong>Before RL starts,</strong> let the current model try every candidate task four times.</p>
+      <div class="cb-board" role="img" aria-label="Three candidate tasks tested four times and filtered by difficulty">
+        <div class="cb-head"><span>CANDIDATE TASK</span><span>TRY 1</span><span>TRY 2</span><span>TRY 3</span><span>TRY 4</span><span>CURRICULUM DECISION</span></div>
+        <div class="cb-row easy">
+          <div class="cb-task"><b>Task A · easy</b><span>The current model already knows it.</span></div>
+          <div class="cb-outcome win" style="--delay:0s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-outcome win" style="--delay:.35s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-outcome win" style="--delay:.7s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-outcome win" style="--delay:1.05s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-decision drop" style="--delay:1.4s"><b>DROP · 4/4</b><span>Already mastered; little new signal.</span></div>
+        </div>
+        <div class="cb-row boundary">
+          <div class="cb-task"><b>Task B · capability boundary</b><span>Solvable, but not yet reliable.</span></div>
+          <div class="cb-outcome win" style="--delay:2.6s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-outcome fail" style="--delay:2.95s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-outcome fail" style="--delay:3.3s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-outcome win" style="--delay:3.65s"><b>✓</b><span>PASS</span></div>
+          <div class="cb-decision keep" style="--delay:4s"><b>KEEP · 2/4</b><span>Best learning signal: wins and losses.</span></div>
+        </div>
+        <div class="cb-row hard">
+          <div class="cb-task"><b>Task C · very hard</b><span>No successful attempt yet.</span></div>
+          <div class="cb-outcome fail" style="--delay:5.2s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-outcome fail" style="--delay:5.55s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-outcome fail" style="--delay:5.9s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-outcome fail" style="--delay:6.25s"><b>×</b><span>FAIL</span></div>
+          <div class="cb-decision sample" style="--delay:6.6s"><b>KEEP A FEW · 0/4</b><span>Preserve some hard tasks for coverage.</span></div>
+        </div>
+      </div>
+      <div class="cb-explain"><strong>Why the middle wins:</strong> With a pass/fail reward, RL needs better and worse attempts to compare. Four passes mean the task is already mastered; four failures provide no winning attempt to reinforce. Mixed results provide both.</div>
+      <div class="source"><b>S19 · §5.1</b> Agent Lightning v1.0 filters coding tasks using four pilot rollouts. Outcomes shown here are a simplified teaching example, not reported task-level data.</div>
+    </div>
+  </section>
+
+  <section class="slide evo-arch-slide" data-slide-id="evoenv-architecture" data-source="S20 Figure 2 Appendix B Sections 3.1-3.4">
+    <div class="content">
+      <div class="eyebrow">EvoEnv · verifiable environment architecture</div>
+      <h2>Don’t generate questions. <span class="aqua">Generate a world factory.</span></h2>
+      <p class="evo-subtitle"><strong>One executable environment contains four routines:</strong> sample an instance, compute its hidden answer, render the prompt, and score the response.</p>
+      <div class="evo-arch-layout">
+        <div class="evo-graph" role="img" aria-label="EvoEnv architecture with visible model path and hidden oracle path">
+          <div class="evo-graph-label visible">VISIBLE MODEL PATH</div><div class="evo-graph-label hidden">HIDDEN CODE PATH · NEVER SHOWN TO THE LLM</div>
+          <svg class="evo-lines" viewBox="0 0 1300 570" aria-hidden="true"><defs><marker id="evoBlueArrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#70a7ff"/></marker><marker id="evoCoralArrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#ff765f"/></marker><marker id="evoGoldArrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto"><path d="M0,0 L10,5.5 L0,11 z" fill="#ffc95c"/></marker></defs>
+            <path class="evo-path visible-path" style="--delay:1.1s" d="M247 276 C280 240 282 143 310 133" marker-end="url(#evoBlueArrow)"/><path class="evo-path hidden-path" style="--delay:1.5s" d="M247 294 C280 330 282 427 310 437" marker-end="url(#evoCoralArrow)"/><path class="evo-path visible-path" style="--delay:2.7s" d="M535 133 L625 133" marker-end="url(#evoBlueArrow)"/><path class="evo-path hidden-path" style="--delay:3.1s" d="M535 437 L625 437" marker-end="url(#evoCoralArrow)"/><path class="evo-path visible-path" style="--delay:4.3s" d="M858 133 C900 143 903 242 936 270" marker-end="url(#evoBlueArrow)"/><path class="evo-path hidden-path" style="--delay:4.7s" d="M858 437 C900 427 903 328 936 300" marker-end="url(#evoCoralArrow)"/><path class="evo-path score-path" style="--delay:6s" d="M1157 285 L1210 285" marker-end="url(#evoGoldArrow)"/>
+          </svg>
+          <div class="evo-node sample evo-animate" style="--delay:.3s"><b>sample()</b><span>Create a fresh latent task instance z.</span></div>
+          <div class="evo-node render evo-animate" style="--delay:1.8s"><b>render()</b><span>Turn z into the prompt the model sees.</span></div>
+          <div class="evo-node oracle evo-animate" style="--delay:2.1s"><b>oracle() <i class="evo-lock">LOCKED</i></b><span>Compute the reference answer in Python.</span></div>
+          <div class="evo-node model evo-animate" style="--delay:3.4s"><b>LLM solver</b><span>Receives only the rendered prompt.</span></div>
+          <div class="evo-node reference evo-animate" style="--delay:3.7s"><b>hidden reference</b><span>Travels only through the code path.</span></div>
+          <div class="evo-node scorer evo-animate" style="--delay:5.1s"><b>score()</b><span>Compare response y with reference y*.</span></div>
+          <div class="evo-node reward evo-animate" style="--delay:6.3s"><b>R</b><span>0 or 1</span></div>
+        </div>
+        <div class="evo-admission">
+          <div class="evo-admission-label">POOL ADMISSION · STARTING FROM 10 SEEDS</div>
+          <div class="evo-seed">CANDIDATE PYTHON ENVIRONMENT</div>
+          <div class="evo-gates"><div class="evo-gate" style="--delay:7.1s"><b>EXECUTABLE?</b><span>Interface and runtime checks pass.</span></div><div class="evo-gate" style="--delay:7.8s"><b>SEMANTICALLY CORRECT?</b><span>Self-review rejects broken tasks.</span></div><div class="evo-gate" style="--delay:8.5s"><b>HARD ENOUGH?</b><span>Solver rollouts calibrate difficulty.</span></div><div class="evo-gate" style="--delay:9.2s"><b>NOVEL?</b><span>Reject near-duplicates of the pool.</span></div></div>
+          <div class="evo-pool" style="--delay:10s">ACCEPTED → RL ENVIRONMENT POOL</div>
+        </div>
+      </div>
+      <div class="evo-arch-explain"><strong>This—not a static dataset—is the training source.</strong> Once accepted, one environment can emit unlimited fresh instances with deterministic hidden rewards.</div>
+      <div class="source"><b>S20 · Figure 2 · Appendix B · §3.1–3.4</b> Architecture reconstructed from EvoEnv (2026); the paper’s interface and admission stages are simplified into one teaching graph.</div>
+    </div>
+  </section>
+
+  <section class="slide evo-example-slide" data-slide-id="evoenv-subset-sum" data-source="S20 Appendix D planted subset-sum">
+    <div class="content">
+      <div class="eyebrow">One environment · unlimited fresh episodes</div>
+      <h2>Watch the factory create <span class="aqua">one verifiable task.</span></h2>
+      <p class="evo-subtitle">A planted subset-sum task asks the model to choose numbers that hit a target; hidden code can generate and verify it cheaply.</p>
+      <div class="evo-example-layout">
+        <div class="evo-example-panel">
+          <div class="evo-example-label">1 · sample() CREATES INSTANCE z</div>
+          <div class="evo-function evo-animate" style="--delay:.3s"><code>numbers</code> = shuffled candidates</div>
+          <div class="evo-number-grid"><div class="evo-number evo-animate" style="--delay:.7s">3</div><div class="evo-number evo-animate" style="--delay:.95s">7</div><div class="evo-number evo-animate" style="--delay:1.2s">11</div><div class="evo-number evo-animate" style="--delay:1.45s">14</div><div class="evo-number evo-animate" style="--delay:1.7s">20</div><div class="evo-number evo-animate" style="--delay:1.95s">26</div></div>
+          <div class="evo-target evo-animate" style="--delay:2.2s">TARGET = 38</div>
+        </div>
+        <div class="evo-example-panel evo-model-panel">
+          <div class="evo-example-label">2 · render() → MODEL VIEW</div>
+          <div class="evo-prompt evo-animate" style="--delay:3s"><small>VISIBLE PROMPT</small><strong>Select numbers whose sum equals 38.</strong><div class="evo-prompt-list">[3, 7, 11, 14, 20, 26]</div></div>
+          <div class="evo-model-orb">LLM</div>
+          <div class="evo-model-answer evo-animate" style="--delay:4.6s">response y = [7, 11, 20]</div>
+        </div>
+        <div class="evo-example-panel evo-hidden-panel">
+          <div class="evo-hidden-label">3 · oracle() + score() <span>HIDDEN FROM MODEL</span></div>
+          <div class="evo-reference-box evo-animate" style="--delay:5.5s"><b>REFERENCE y*</b><code>planted subset = [7, 11, 20]</code></div>
+          <div class="evo-check evo-animate" style="--delay:6.5s">7 + 11 + 20 = 38<br>all values came from the instance</div>
+          <div class="evo-final-reward evo-animate" style="--delay:7.5s">REWARD = 1 · PASS</div>
+        </div>
+      </div>
+      <div class="evo-repeat"><div class="evo-repeat-title">SAME FACTORY<br>NEW EPISODE ↻</div><div class="evo-next evo-animate" style="--delay:8.5s"><b>INSTANCE 2</b><span>[2, 8, 15, 21] → target 23</span></div><div class="evo-next evo-animate" style="--delay:9.1s"><b>INSTANCE 3</b><span>[5, 12, 18, 25] → target 30</span></div><div class="evo-next evo-animate" style="--delay:9.7s"><b>INSTANCE 4</b><span>[6, 9, 17, 28] → target 34</span></div></div>
+      <div class="evo-example-explain"><strong>Solve–verify asymmetry:</strong> every fresh puzzle can remain difficult for the LLM, while deterministic Python generation and checking remain cheap. That gap keeps reward useful as training continues.</div>
+      <div class="source"><b>S20 · Appendix D</b> Planted subset-sum follows the paper’s example class. Numbers and response shown here are our simplified teaching instance, not reported trajectory data.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="what-we-built" data-source="LOCAL repository implementation">
+    <div class="content">
+      <div class="eyebrow">From paper mechanism to executable project</div>
+      <h2>We build the <span class="aqua">entire training loop</span>—not just a Sokoban animation.</h2>
+      <div class="arch-strip" style="margin-top:28px;flex:0 0 250px">
+        <div class="arch-box"><b>1 · World</b><span>reset, observe, move, push, terminate</span></div>
+        <div class="arch-box"><b>2 · Oracle</b><span>exact BFS solution and hidden distance</span></div>
+        <div class="arch-box"><b>3 · Policy</b><span>19,876-parameter causal Transformer</span></div>
+        <div class="arch-box"><b>4 · Rollout</b><span>state, action probabilities, reward, next state</span></div>
+        <div class="arch-box hot"><b>5 · Update</b><span>behavior cloning, then executable RL</span></div>
+      </div>
+      <div class="grid3" style="margin-top:30px;flex:0 0 280px">
+        <div class="card aqua"><div class="big">0</div><h3>model downloads</h3><p>Tokenizer, weights, tasks, and oracle are generated locally.</p></div>
+        <div class="card blue"><div class="big">20K</div><h3>trainable parameters</h3><p>Small enough to run repeated experiments on a MacBook CPU.</p></div>
+        <div class="card coral"><div class="big">5</div><h3>paired final seeds</h3><p>Same warm start, frozen split, raw trajectories retained.</p></div>
+      </div>
+      <div class="source"><b>LOCAL BUILD</b> Environment, solver, model, rollout, SFT, RL, evaluation, and receipts are all included in this repository.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="environment-contract" data-source="LOCAL tiny_sokoban/environment.py bfs.py rollout.py">
+    <div class="content">
+      <div class="eyebrow">Step 1 · define the world contract</div>
+      <h2>The environment owns truth. <span class="aqua">The model only chooses actions.</span></h2>
+      <div class="grid4" style="flex:0 0 430px">
+        <div class="card blue"><div class="label">Observation</div><h3>6 × 6 board</h3><p>Fixed walls plus player, box, and goal positions.</p></div>
+        <div class="card gold"><div class="label">Action</div><h3>U · D · L · R</h3><p>Every attempt is executed by deterministic Python rules.</p></div>
+        <div class="card aqua"><div class="label">Base reward</div><h3>−0.1 · +1 · +10</h3><p>Action cost, target reached, and episode solved.</p></div>
+        <div class="card coral"><div class="label">Stop</div><h3>Solved or 20</h3><p>Terminate on success; truncate after twenty actions.</p></div>
+      </div>
+      <div class="split" style="margin-top:26px;flex:0 0 240px">
+        <div class="equation big">s<sub>t</sub> + action → Python transition → s<sub>t+1</sub>, reward</div>
+        <div class="card coral"><h3>Hidden verifier boundary</h3><p>BFS can score progress and verify solutions. The policy never receives shortest distance or the answer path as an observation.</p></div>
+      </div>
+      <div class="source"><b>IMPLEMENTATION</b> <code>tiny_sokoban/environment.py</code> · <code>bfs.py</code> · <code>rollout.py</code></div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="generate-and-split" data-source="LOCAL frozen split manifest">
+    <div class="content">
+      <div class="eyebrow">Step 2 · generate tasks, then freeze evaluation</div>
+      <h2>Exact BFS turns one board layout into <span class="aqua">530 labeled puzzles.</span></h2>
+      <div class="split wide-left">
+        <div class="stack">
+          <div class="equation">for goal × box × player:<br> solve with BFS<br> keep distance 1…11</div>
+          <div class="card"><h3>Stratify by optimal length</h3><p>Each split contains easy and hard starts; identifiers cannot overlap.</p></div>
+          <div class="warning">Pilots used split seed 1729. Confirmation switched to unseen seed <strong>314159</strong> before final outcomes were read.</div>
+        </div>
+        <div class="grid2" style="align-content:stretch">
+          <div class="card aqua"><div class="big">365</div><h3>train states</h3><p>Only these may generate imitation examples or RL starts.</p></div>
+          <div class="card blue"><div class="big">73</div><h3>validation states</h3><p>Used to choose architecture and training budget.</p></div>
+          <div class="card coral"><div class="big">91</div><h3>test metrics</h3><p>90 states at distance 1–10 plus one at distance 11.</p></div>
+          <div class="card gold"><div class="big">1</div><h3>title replay</h3><p>Test-only and excluded from metrics because pilots inspected it.</p></div>
+        </div>
+      </div>
+      <div class="source"><b>FROZEN RECEIPT</b> split SHA-256 <code>012b3f…e6098</code> · full IDs in <code>results/final/split_manifest.json</code></div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="tiny-policy" data-source="LOCAL tiny_sokoban/model.py tokenizer.py">
+    <div class="content">
+      <div class="eyebrow">Step 3 · build the policy from scratch</div>
+      <h2>A decoder-only Transformer can be tiny and still <span class="aqua">act autoregressively.</span></h2>
+      <div class="arch-strip" style="margin-top:34px;flex:0 0 235px">
+        <div class="arch-box"><b>Board</b><span>36 row-major cell symbols</span></div>
+        <div class="arch-box"><b>Tokens</b><span>17-symbol local vocabulary</span></div>
+        <div class="arch-box hot"><b>2 causal blocks</b><span>d=32 · 4 heads · FF=64</span></div>
+        <div class="arch-box"><b>Final token</b><span>reads only prior board tokens</span></div>
+        <div class="arch-box"><b>Action logits</b><span>U · D · L · R</span></div>
+      </div>
+      <div class="grid3" style="margin-top:33px;flex:0 0 305px">
+        <div class="card"><div class="big">41</div><h3>input tokens</h3><p>Board plus delimiters and one action prompt.</p></div>
+        <div class="card aqua"><div class="big">19,876</div><h3>parameters</h3><p>Randomly initialized; no Hugging Face checkpoint.</p></div>
+        <div class="card"><div class="big">0</div><h3>history tokens</h3><p>State-only input prevents repeated-action history collapse.</p></div>
+      </div>
+      <p class="takeaway">“Decoder-only” describes the causal attention architecture—not the size of the model or whether observations are English.</p>
+      <div class="source"><b>IMPLEMENTATION</b> <code>tiny_sokoban/model.py</code> · strict causal-mask unit test in <code>tests/test_model.py</code></div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="failed-random-rl" data-source="LOCAL PILOT.md">
+    <div class="content">
+      <div class="eyebrow">The useful failure</div>
+      <h2>Random weights + online RL <span class="accent">did not learn a usable policy.</span></h2>
+      <div class="grid3" style="flex:0 0 390px">
+        <div class="card coral"><div class="label">Pilot A</div><div class="big">0%</div><h3>long held-out solves</h3><p>Sparse reward with uniform or curriculum sampling.</p></div>
+        <div class="card coral"><div class="label">Pilot B</div><div class="big">0%</div><h3>shaped held-out solves</h3><p>More informative reward still lacked stable behavioral coverage.</p></div>
+        <div class="card coral"><div class="label">Pilot C</div><div class="big">16K</div><h3>training episodes</h3><p>The tuned policy still collapsed to repeating one direction.</p></div>
+      </div>
+      <div class="arch-strip" style="margin-top:30px;grid-template-columns:repeat(4,1fr);flex:0 0 180px">
+        <div class="arch-box"><b>Random policy</b><span>nearly random moves</span></div>
+        <div class="arch-box"><b>Few useful paths</b><span>weak credit signal</span></div>
+        <div class="arch-box"><b>Local shortcut</b><span>repeat one action</span></div>
+        <div class="arch-box hot"><b>Fix</b><span>teach navigation first</span></div>
+      </div>
+      <p class="takeaway" style="margin-bottom:46px">From-scratch project does not require pretending RL must discover every primitive from random weights.</p>
+      <div class="source"><b>FAILED RECEIPTS RETAINED</b> <code>PILOT.md</code> · three configurations and raw local pilot folders</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="sft-warm-start" data-source="LOCAL final SFT receipts">
+    <div class="content">
+      <div class="eyebrow">Step 4 · create behavioral coverage</div>
+      <h2>Use the oracle to teach actions—<span class="aqua">only on training states.</span></h2>
+      <div class="flow" style="flex:0 0 270px;margin-top:16px">
+        <div class="node">BFS path<small>D D L D R R</small></div><div class="arrow">→</div>
+        <div class="node">state-action pairs<small>(board₀,D) · (board₁,D) · …</small></div><div class="arrow">→</div>
+        <div class="node">cross-entropy<small>predict oracle action</small></div><div class="arrow">→</div>
+        <div class="node hot">SFT policy<small>can now create useful rollouts</small></div>
+      </div>
+      <div class="grid4" style="flex:0 0 260px;margin-top:22px">
+        <div class="card"><div class="big">1,300</div><p>generated state-action examples</p></div>
+        <div class="card"><div class="big">30</div><p>local training epochs</p></div>
+        <div class="card"><div class="big">≈6 s</div><p>mean model time per seed</p></div>
+        <div class="card aqua"><div class="big">39.3%</div><p>frozen test solve rate</p></div>
+      </div>
+      <div class="warning" style="margin-top:24px">This is not test leakage: intermediate examples are admitted only when their full state identifier belongs to the training split.</div>
+      <div class="source"><b>CONTROL CONDITION</b> Five-seed mean from <code>results/final/summary.json</code> · title state excluded</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="executable-rl" data-source="LOCAL tiny_sokoban/reinforce.py rollout.py">
+    <div class="content">
+      <div class="eyebrow">Step 5 · let the policy create trajectories</div>
+      <h2>RL begins when actions change the world and <span class="aqua">reward changes the weights.</span></h2>
+      <div class="arch-strip" style="grid-template-columns:repeat(5,1fr);margin-top:28px;flex:0 0 225px">
+        <div class="arch-box"><b>Sample task</b><span>distance 1–10</span></div>
+        <div class="arch-box"><b>Policy acts</b><span>sample U, D, L, or R</span></div>
+        <div class="arch-box"><b>World steps</b><span>new board + base reward</span></div>
+        <div class="arch-box"><b>Oracle scores</b><span>hidden progress difference</span></div>
+        <div class="arch-box hot"><b>REINFORCE</b><span>return-to-go update</span></div>
+      </div>
+      <div class="split" style="margin-top:28px;flex:0 0 300px">
+        <div class="equation big">r′<sub>t</sub> = r<sub>t</sub> + 0.5 · (d<sub>before</sub> − d<sub>after</sub>)<span class="sub">The policy sees only r′, never the BFS distance or solution.</span></div>
+        <div class="grid2" style="align-content:stretch">
+          <div class="card"><div class="big">80</div><p>policy updates</p></div>
+          <div class="card"><div class="big">64</div><p>rollouts per update</p></div>
+          <div class="card aqua"><div class="big">5,120</div><p>fresh episodes per seed</p></div>
+          <div class="card"><div class="big">≈13 s</div><p>additional model time</p></div>
+        </div>
+      </div>
+      <div class="source"><b>TREATMENT CONDITION</b> Same SFT checkpoint per paired seed · config frozen in <code>configs/final.json</code></div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="measured-result" data-source="LOCAL results/final/analysis.json">
+    <div class="content">
+      <div class="eyebrow">Frozen confirmation result</div>
+      <h2>Executable RL added <span class="aqua">+12.7 percentage points</span> on unseen states.</h2>
+      <div class="metric-pair">
+        <div class="metric-card">
+          <h3>SFT warm start</h3><p>control · greedy test solve rate</p>
+          <div class="metric-value">39.3%</div><div class="metric-bar" style="height:196px"></div>
+        </div>
+        <div class="metric-card rl">
+          <div class="metric-delta">+12.7 pp</div><h3>SFT + RL</h3><p>treatment · same 90 test states</p>
+          <div class="metric-value">52.0%</div><div class="metric-bar" style="height:260px"></div>
+        </div>
+      </div>
+      <div class="seed-strip" style="margin-bottom:48px">
+        <div class="seed-pill"><b>+7.8</b><span>SEED 2001 · PP</span></div>
+        <div class="seed-pill"><b>+16.7</b><span>SEED 2002 · PP</span></div>
+        <div class="seed-pill"><b>+20.0</b><span>SEED 2003 · PP</span></div>
+        <div class="seed-pill"><b>+8.9</b><span>SEED 2004 · PP</span></div>
+        <div class="seed-pill"><b>+10.0</b><span>SEED 2005 · PP</span></div>
+      </div>
+      <div class="source"><b>FIVE PAIRED SEEDS</b> All five differences positive · t-based 95% interval for the mean: +6.0 to +19.3 pp · small-n result, fixed topology only.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="difficulty-result" data-source="LOCAL results/final/analysis.json">
+    <div class="content">
+      <div class="eyebrow">Where the measured gain appeared</div>
+      <h2>The largest differences were on <span class="aqua">longer solution paths.</span></h2>
+      <div class="difficulty-grid" style="margin-top:28px;flex:0 0 535px">
+        <div class="dh">Optimal steps</div><div class="dh">SFT</div><div class="dh">SFT + RL</div><div class="dh" style="text-align:right">Difference</div>
+        <div><strong>3 moves</strong></div><div class="mini-track"><i style="width:67.3%"></i></div><div class="mini-track rl"><i style="width:74.5%"></i></div><div class="gain">+7.3 pp</div>
+        <div><strong>4 moves</strong></div><div class="mini-track"><i style="width:45.3%"></i></div><div class="mini-track rl"><i style="width:58.7%"></i></div><div class="gain">+13.3 pp</div>
+        <div><strong>6 moves</strong></div><div class="mini-track"><i style="width:36%"></i></div><div class="mini-track rl"><i style="width:48%"></i></div><div class="gain">+12.0 pp</div>
+        <div><strong>8 moves</strong></div><div class="mini-track"><i style="width:4%"></i></div><div class="mini-track rl"><i style="width:32%"></i></div><div class="gain">+28.0 pp</div>
+        <div><strong>9 moves</strong></div><div class="mini-track"><i style="width:40%"></i></div><div class="mini-track rl"><i style="width:66.7%"></i></div><div class="gain">+26.7 pp</div>
+        <div><strong>10 moves</strong></div><div class="mini-track"><i style="width:10%"></i></div><div class="mini-track rl"><i style="width:70%"></i></div><div class="gain">+60.0 pp</div>
+      </div>
+      <div class="warning" style="margin-top:26px">Distance bands contain few unique states, especially at 9–10 moves. This pattern is descriptive—not proof that path length caused the gain.</div>
+      <div class="source"><b>MEAN ACROSS FIVE SEEDS</b> Exact per-distance counts and metrics are in <code>results/final/*_metrics.json</code>.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="recorded-policy-replay" data-source="LOCAL artifacts/title_board_replay.json">
+    <div class="content">
+      <div class="eyebrow">Artifact check · one complete greedy trajectory</div>
+      <h2>The checkpoint solves the title board in the <span class="gold">BFS-optimal six moves.</span></h2>
+      <div class="prob-grid" style="margin-top:26px">
+        <div class="prob-step"><span class="num">01</span><span class="arr">↓</span><strong>DOWN</strong><span class="prob">P = 99.31%</span><span class="kind">push</span></div>
+        <div class="prob-step"><span class="num">02</span><span class="arr">↓</span><strong>DOWN</strong><span class="prob">P = 99.25%</span><span class="kind">push</span></div>
+        <div class="prob-step"><span class="num">03</span><span class="arr">←</span><strong>LEFT</strong><span class="prob">P = 98.93%</span><span class="kind">route</span></div>
+        <div class="prob-step"><span class="num">04</span><span class="arr">↓</span><strong>DOWN</strong><span class="prob">P = 98.84%</span><span class="kind">line up</span></div>
+        <div class="prob-step"><span class="num">05</span><span class="arr">→</span><strong>RIGHT</strong><span class="prob">P = 99.11%</span><span class="kind">push</span></div>
+        <div class="prob-step"><span class="num">06</span><span class="arr">→</span><strong>RIGHT</strong><span class="prob">P = 98.90%</span><span class="kind">SOLVED</span></div>
+      </div>
+      <div class="grid3" style="flex:0 0 145px;margin-top:18px;margin-bottom:48px">
+        <div class="card"><h3>Every state</h3><p>before and after each action</p></div>
+        <div class="card"><h3>Every probability</h3><p>U, D, L, and R retained</p></div>
+        <div class="card aqua"><h3>Every verifier field</h3><p>valid · pushed · solved · deadlock</p></div>
+      </div>
+      <div class="source"><b>NOT A MOCKUP</b> Serialized from <code>artifacts/tiny_sokoban_model.pt</code> · checkpoint SHA-256 <code>777f85…893f2</code></div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="reproduce-on-mac" data-source="LOCAL README and configs">
+    <div class="content">
+      <div class="eyebrow">Run everything on a MacBook</div>
+      <h2>Four commands reproduce the <span class="aqua">tests, training, audit, and replay.</span></h2>
+      <div class="split wide-right">
+        <pre style="font-size:25px;line-height:1.65"># 1 · verify mechanics
+python -m pytest
+
+# 2 · 1-seed validation pilot
+python scripts/reproduce.py --preset quick
+
+# 3 · frozen 5-seed confirmation
+python scripts/reproduce.py --preset final
+
+# 4 · audit hashes and paired result
+python scripts/analyze.py</pre>
+        <div class="stack">
+          <div class="card aqua"><h3>No GPU required</h3><p>The recorded run used CPU because tiny batched workloads were faster than MPS here.</p></div>
+          <div class="card blue"><h3>Expected model time</h3><p>About 15 seconds for quick; about 95 cumulative seconds for five final seeds on the development M4.</p></div>
+          <div class="card"><h3>Inspect the artifact</h3><pre style="font-size:18px;padding:15px">python scripts/evaluate.py \
+  artifacts/tiny_sokoban_model.pt</pre></div>
+        </div>
+      </div>
+      <div class="source"><b>BANDWIDTH</b> No weights or dataset are fetched. Only PyTorch is required; the selected checkpoint is about 100 KB.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="next-research" data-source="LOCAL project claim boundary">
+    <div class="content">
+      <div class="eyebrow">Turn the tutorial into your research portfolio</div>
+      <h2>Fork one axis. Keep the <span class="aqua">measurement contract</span> fixed.</h2>
+      <div class="grid4" style="flex:0 0 480px">
+        <div class="card blue"><div class="label">World</div><h3>New wall layouts</h3><p>Does the policy transfer when geometry changes, not just positions?</p></div>
+        <div class="card gold"><div class="label">Observation</div><h3>Text vs symbols</h3><p>Hold tasks fixed; change only how the board is rendered.</p></div>
+        <div class="card aqua"><div class="label">Reward</div><h3>Sparse vs progress</h3><p>With behavioral coverage fixed, isolate what shaping contributes.</p></div>
+        <div class="card coral"><div class="label">Sampling</div><h3>Boundary curriculum</h3><p>Compare uniform tasks with mixed-success task selection.</p></div>
+      </div>
+      <div class="grid2" style="flex:0 0 180px;margin-top:28px">
+        <div class="card aqua"><h3>What this repository proves</h3><p>The environment ran, produced trajectories, and RL improved a frozen held-out metric under this setup.</p></div>
+        <div class="card coral"><h3>What it does not prove</h3><p>General Sokoban reasoning, transfer to new worlds, or equivalence to OpenAI/Anthropic training systems.</p></div>
+      </div>
+      <p class="takeaway" style="margin-bottom:46px">The role-ready artifact is the combination: executable world + hidden verifier + training loop + receipts + honest limits.</p>
+      <div class="source"><b>REPOSITORY</b> Start with <code>README.md</code>, then inspect <code>EXPERIMENT_PROTOCOL.md</code> and <code>results/final/analysis.json</code>.</div>
+    </div>
+  </section>
+
+  <template id="legacySlides" aria-hidden="true">
+  <section class="slide" data-slide-id="worked-task">
+    <div class="content">
+      <div class="eyebrow">Our reproducible teaching environment</div><h2>Messy scientific CSV → auditable analysis package.</h2>
+      <div class="split">
+        <div class="card aqua">
+          <div class="label">Visible task</div>
+          <h3>Repair an assay dataset</h3>
+          <p>Normalize units, remove duplicates, flag impossible values, compute group statistics, and write a report.</p>
+        </div>
+        <div class="stack">
+          <div class="card"><h3>Inputs</h3><p><code>assay.csv</code> · <code>schema.json</code> · <code>task.md</code></p></div>
+          <div class="card"><h3>Required outputs</h3><p><code>analysis.py</code> · <code>clean.csv</code> · <code>metrics.json</code> · <code>report.md</code></p></div>
+          <div class="card coral"><h3>Hidden trap</h3><p>A post-outcome column predicts perfectly—but using it invalidates the submission.</p></div>
+        </div>
+      </div>
+      <div class="source">Original teaching environment inspired by FrontierChallenge’s artifact-centric scientific tasks; no benchmark answers are reused.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="filesystem">
+    <div class="content">
+      <div class="eyebrow">Workspace topology</div><h2>Separate what the agent may read, change, and never see.</h2>
+      <div class="split wide-left">
+        <div class="filetree">
+environment/<br>
+├── <span class="ro">input/</span>         # read-only<br>
+│   ├── assay.csv<br>
+│   └── task.md<br>
+├── <span class="rw">workspace/</span>     # scratch + code<br>
+├── <span class="rw">output/</span>        # submitted artifacts<br>
+└── <span class="hide">hidden/</span>        # verifier + truth
+        </div>
+        <div class="stack">
+          <div class="card blue"><h3>Read-only inputs</h3><p>Prevent accidental or strategic mutation of evidence.</p></div>
+          <div class="card aqua"><h3>Writable work</h3><p>Let failures and intermediate artifacts persist.</p></div>
+          <div class="card coral"><h3>Hidden verifier</h3><p>Never expose tests, truth, or reward secrets to the policy.</p></div>
+        </div>
+      </div>
+      <div class="source"><b>S02, S04, S06</b> FrontierAgent, FrontierChallenge, and Harbor all use isolated task workspaces with external verification.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="actions">
+    <div class="content">
+      <div class="eyebrow">Action space</div><h2>Give the model the smallest useful set of powers.</h2>
+      <div class="grid3">
+        <div class="card aqua"><div class="label">Inspect</div><div class="big">read_file</div><p>Return bounded text, metadata, or an image observation.</p></div>
+        <div class="card blue"><div class="label">Transform</div><div class="big">write_file</div><p>Create or patch files only inside authorized paths.</p></div>
+        <div class="card coral"><div class="label">Execute</div><div class="big">run</div><p>Execute a command with timeout, resource limits, and captured logs.</p></div>
+      </div>
+      <div class="equation" style="margin-top:30px">Optional later: search · database query · subagent · submit</div>
+      <p class="takeaway">Every extra tool increases both capability and the attack surface.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="observations">
+    <div class="content">
+      <div class="eyebrow">Observation contract</div><h2>Return state—not motivational prose.</h2>
+      <div class="split wide-left">
+        <pre>{
+  "status": "error",
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "KeyError: concentration",
+  "changed_files": ["analysis.py"],
+  "budget": {"tools_left": 17},
+  "elapsed_ms": 284
+}</pre>
+        <div class="stack">
+          <div class="card"><h3>Bound outputs</h3><p>Truncate huge logs while preserving the diagnostic tail.</p></div>
+          <div class="card"><h3>Expose consequences</h3><p>Report files changed, return code, cost, and remaining budget.</p></div>
+          <div class="card coral"><h3>Do not leak truth</h3><p>The observation may explain failure—not reveal the hidden answer.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="verifier">
+    <div class="content">
+      <div class="eyebrow">Reward design</div><h2>Build the verifier before collecting trajectories.</h2>
+      <div class="grid4">
+        <div class="card"><div class="big">.20</div><h3>Artifacts</h3><p>All required files exist and parse.</p></div>
+        <div class="card"><div class="big">.35</div><h3>Correctness</h3><p>Values match independent recomputation.</p></div>
+        <div class="card"><div class="big">.25</div><h3>Generalization</h3><p>Script works on hidden instances.</p></div>
+        <div class="card"><div class="big">.20</div><h3>Integrity</h3><p>No forbidden feature or answer leakage.</p></div>
+      </div>
+      <div class="equation" style="margin-top:30px">reward = verifier_score − λ · normalized_cost</div>
+      <p class="takeaway">Make correctness dominant. Add efficiency only after validity.</p>
+      <div class="source"><b>S01 §3.1, §3.4; S06</b> Executable verifiers define task outcomes; Harbor tasks write a numeric reward.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="sandbox">
+    <div class="content">
+      <div class="eyebrow">Isolation</div><h2>A benchmark task is untrusted code.</h2>
+      <div class="flow">
+        <div class="node">host<small>keys · files · network</small></div><div class="arrow">≠</div>
+        <div class="node hot">container<small>CPU · RAM · PID · timeout</small></div><div class="arrow">→</div>
+        <div class="node">mounted input<small>read-only</small></div><div class="arrow">+</div>
+        <div class="node">collected output<small>declared paths only</small></div>
+      </div>
+      <div class="grid3" style="flex:0 0 250px">
+        <div class="card coral"><h3>Network</h3><p>Off by default; allowlist when the task genuinely requires search.</p></div>
+        <div class="card gold"><h3>Resources</h3><p>Set wall time, memory, CPU, storage, and process ceilings.</p></div>
+        <div class="card blue"><h3>Secrets</h3><p>Pass only episode-scoped credentials; never mount personal home directories.</p></div>
+      </div>
+      <div class="source"><b>S02, S04, S06</b> FrontierAgent and Harbor use task-scoped isolation; FrontierChallenge distributes runtime images for open tasks.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="trajectory">
+    <div class="content">
+      <div class="eyebrow">The training artifact</div><h2>One JSONL line per state transition.</h2>
+      <pre>{"t":0,"action":"read_file","path":"/input/assay.csv","cost":1,"status":"ok"}
+{"t":1,"action":"write_file","path":"/workspace/analysis.py","status":"ok"}
+{"t":2,"action":"run","command":"python analysis.py","exit_code":1,"error":"KeyError"}
+{"t":3,"action":"write_file","path":"/workspace/analysis.py","status":"ok"}
+{"t":4,"action":"run","command":"python analysis.py","exit_code":0}
+{"t":5,"action":"submit","reward":0.92,"verdict":{"hidden_instances":9,"passed":8}}</pre>
+      <div class="grid3" style="margin-top:26px;flex:0 0 220px">
+        <div class="card"><h3>Replay</h3><p>Can we reconstruct every visible state?</p></div>
+        <div class="card"><h3>Learn</h3><p>Which action preceded improvement or collapse?</p></div>
+        <div class="card"><h3>Audit</h3><p>Does the final claim follow from logged evidence?</p></div>
+      </div>
+      <div class="source"><b>S01 §2.1; S05; S06</b> The public examples and Harbor preserve action-level trajectories and results.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="roles">
+    <div class="content">
+      <div class="eyebrow">AI-assisted research</div><h2>Let AI accelerate construction. Keep scientific authority human.</h2>
+      <div class="role">
+        <div class="side ai"><h3>AI drafts</h3><ul><li>task instances</li><li>Docker scaffolds</li><li>tool schemas</li><li>candidate verifiers</li><li>analysis code</li></ul></div>
+        <div class="plus">+</div>
+        <div class="side human"><h3>Researcher owns</h3><ul><li>question and controls</li><li>hidden-truth generation</li><li>leakage audit</li><li>frozen evaluation</li><li>claim boundaries</li></ul></div>
+      </div>
+      <p class="takeaway">AI can write the experiment. It cannot decide that its own experiment is valid.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="prompt-task-designer">
+    <div class="content">
+      <div class="eyebrow">Prompt 1 · task designer</div><h2>Ask AI to design a contract—not “make a benchmark.”</h2>
+      <div class="promptbox">
+        <pre>You are designing one executable LLM-agent task.
+
+Objective: <span class="slot">clean and analyze a scientific CSV</span>.
+Return: (1) initial workspace, (2) allowed actions,
+(3) exact deliverables, (4) budgets, (5) hidden checks,
+(6) three failure modes, and (7) a generator for 100 variants.
+
+Constraints: no answer may appear in visible inputs; every score
+must be independently recomputable; include one forbidden shortcut.
+Do not write implementation code yet.</pre>
+      </div>
+      <p class="takeaway">Your job: reject tasks with ambiguous success or unverifiable judgment.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="prompt-builder">
+    <div class="content">
+      <div class="eyebrow">Prompt 2 · environment engineer</div><h2>Turn the frozen contract into a resettable world.</h2>
+      <div class="promptbox">
+        <pre>Implement the attached frozen task contract as a Python environment.
+
+Required interface: reset(seed), step(action), submit().
+Use typed JSON actions, deterministic seeded generation, bounded logs,
+per-step costs, immutable inputs, and an append-only trajectory.jsonl.
+
+Put hidden truth and verifier code outside the agent mount.
+Write tests proving: same seed → same instance; oracle passes;
+no-op fails; malformed actions recover without ending the episode.</pre>
+      </div>
+      <p class="takeaway">Your job: inspect every mount, seed, timeout, and state transition.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="prompt-verifier">
+    <div class="content">
+      <div class="eyebrow">Prompt 3 · verifier engineer</div><h2>Make reward difficult to game.</h2>
+      <div class="promptbox">
+        <pre>Write an external verifier for the attached task.
+
+Recompute results from hidden raw data. Test output schemas,
+numerical tolerances, script rerunnability, hidden instances,
+forbidden-feature use, and provenance consistency.
+
+Return a score vector plus one scalar in [0,1].
+Add adversarial tests for hard-coded answers, empty files,
+stale outputs, copied reference values, and NaN-based bypasses.</pre>
+      </div>
+      <p class="takeaway">Your job: verify the verifier with an oracle, a no-op, and adversarial submissions.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="prompt-red-team">
+    <div class="content">
+      <div class="eyebrow">Prompt 4 · hostile reviewer</div><h2>Attack the measurement before training on it.</h2>
+      <div class="promptbox">
+        <pre>Act as a hostile benchmark reviewer.
+
+Find every route to high reward without the intended capability:
+data leakage, weak tests, filename shortcuts, exploitable tolerances,
+seed memorization, judge bias, environment drift, and reward hacking.
+
+For each issue give: exploit, expected score inflation,
+minimal repair, and a regression test. Do not praise the benchmark.</pre>
+      </div>
+      <p class="takeaway">Your job: fix measurement failures before collecting expensive rollouts.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="core-loop">
+    <div class="content">
+      <div class="eyebrow">Minimal implementation</div><h2>The environment loop is small. Reliability is the hard part.</h2>
+      <div class="split wide-left">
+        <pre>obs = env.reset(seed)
+
+while not env.done:
+    action = policy.act(obs, tools=env.schemas)
+    obs, cost = env.step(action)
+
+reward, verdict = env.submit()
+save(env.trajectory, reward, verdict)</pre>
+        <div class="stack">
+          <div class="card aqua"><h3>Environment owns</h3><p>State transition, tool execution, budgets, termination, and verification.</p></div>
+          <div class="card coral"><h3>Policy owns</h3><p>Which valid action to take next given observations.</p></div>
+          <div class="card gold"><h3>Trainer owns</h3><p>How trajectories and rewards update model weights.</p></div>
+        </div>
+      </div>
+      <div class="source">This separation is compatible with a custom loop, Gym-style APIs, Harbor, or a dedicated RL trainer.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="harbor-package">
+    <div class="content">
+      <div class="eyebrow">Practical open implementation</div><h2>Package the task with Harbor instead of inventing orchestration.</h2>
+      <div class="split">
+        <div class="filetree">
+task-001/<br>
+├── task.toml<br>
+├── instruction.md<br>
+├── environment/<br>
+│   └── Dockerfile<br>
+├── tests/<br>
+│   └── test.sh<br>
+└── solution/<br>
+    └── solve.sh
+        </div>
+        <div class="stack">
+          <div class="equation">uv tool install harbor</div>
+          <div class="equation">harbor run -d ./dataset -a oracle</div>
+          <div class="equation">harbor run -d ./dataset -a &lt;agent&gt; -m &lt;model&gt;</div>
+          <div class="warning">Use the oracle to prove the task is solvable; use the no-op to prove the verifier rejects empty work.</div>
+        </div>
+      </div>
+      <div class="source"><b>S06</b> Harbor documentation and benchmark template · github.com/harbor-framework/harbor</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="pilot">
+    <div class="content">
+      <div class="eyebrow">Pilot before training</div><h2>Ten episodes can invalidate a month of RL.</h2>
+      <div class="timeline" style="grid-template-columns:repeat(5,1fr)">
+        <div class="event"><b>A</b><span>Oracle: 10/10</span></div>
+        <div class="event"><b>B</b><span>No-op: 0/10</span></div>
+        <div class="event"><b>C</b><span>Strong agent: inspect traces</span></div>
+        <div class="event"><b>D</b><span>Adversary: exploit hunt</span></div>
+        <div class="event"><b>E</b><span>Freeze v1.0</span></div>
+      </div>
+      <div class="grid3" style="flex:0 0 250px">
+        <div class="card"><h3>Measure</h3><p>Success, reward components, calls, tokens, time.</p></div>
+        <div class="card"><h3>Inspect</h3><p>At least one success, failure, and suspicious near-pass.</p></div>
+        <div class="card"><h3>Freeze</h3><p>Images, task generator, verifier, model, and decoding config.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="rollout-dataset">
+    <div class="content">
+      <div class="eyebrow">Collect trajectories</div><h2>Split by hidden instance—not by trajectory.</h2>
+      <div class="split wide-left">
+        <div class="matrix">
+          <div class="mcell head">Instance family</div><div class="mcell head">Train</div><div class="mcell head">Dev</div><div class="mcell head">Test</div><div class="mcell head">Why</div>
+          <div class="mcell row">Schemas</div><div class="mcell on">A–F</div><div class="mcell on">G–H</div><div class="mcell on">I–J</div><div class="mcell">new structures</div>
+          <div class="mcell row">Corruptions</div><div class="mcell on">1–6</div><div class="mcell on">7–8</div><div class="mcell on">9–10</div><div class="mcell">new traps</div>
+          <div class="mcell row">Seeds</div><div class="mcell on">0–79</div><div class="mcell on">80–89</div><div class="mcell on">90–99</div><div class="mcell">new values</div>
+          <div class="mcell row">Access</div><div class="mcell on">optimize</div><div class="mcell on">select</div><div class="mcell off">open once</div><div class="mcell">claim shield</div>
+        </div>
+        <div class="stack">
+          <div class="card coral"><h3>Wrong split</h3><p>Same hidden task instance appears in train and test through different trajectories.</p></div>
+          <div class="card aqua"><h3>Right split</h3><p>Test contains unseen schemas, corruption families, and random values.</p></div>
+        </div>
+      </div>
+      <div class="source"><b>S08</b> RAGEN emphasizes diverse initial states; split design here is our proposed stronger generalization test.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="sft-vs-rl">
+    <div class="content">
+      <div class="eyebrow">What happens after collection?</div><h2>The environment generates data. A trainer changes weights.</h2>
+      <div class="grid3">
+        <div class="card blue"><div class="label">SFT</div><h3>Imitate selected trajectories</h3><p>Filter strong demonstrations. Train next-action prediction.</p><div class="equation" style="margin-top:24px">state → good action</div></div>
+        <div class="card coral"><div class="label">Preference</div><h3>Rank alternatives</h3><p>Compare successful and failed continuations from the same state.</p><div class="equation" style="margin-top:24px">a⁺ ≻ a⁻</div></div>
+        <div class="card aqua"><div class="label">RL</div><h3>Optimize expected reward</h3><p>Sample trajectories, compute advantage, update the policy.</p><div class="equation" style="margin-top:24px">maximize E[R(τ)]</div></div>
+      </div>
+      <div class="warning" style="margin-top:26px">FrontierAgent and FrontierChallenge can create trajectories and scores. The complete Apodex RL trainer is not public.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="pivot-rl">
+    <div class="content">
+      <div class="eyebrow">Paper mechanism · PIVOT-RL</div><h2>Do not relearn the useful prefix.</h2>
+      <div class="flow">
+        <div class="node">useful prefix<small>read · inspect · plan</small></div><div class="arrow">→</div>
+        <div class="node" style="border-color:var(--coral)">pivot<small>first consequential mistake</small></div><div class="arrow">→</div>
+        <div class="node">restore state<small>same files + observations</small></div><div class="arrow">→</div>
+        <div class="node hot">new continuation<small>train the correction</small></div>
+      </div>
+      <div class="grid3" style="flex:0 0 230px">
+        <div class="card"><h3>Localize</h3><p>Find where strategy became unproductive.</p></div>
+        <div class="card"><h3>Preserve</h3><p>Keep valid work before the pivot.</p></div>
+        <div class="card"><h3>Branch</h3><p>Generate corrected continuations from restored state.</p></div>
+      </div>
+      <div class="source"><b>S01 §3.4.2</b> Conceptual description from the paper. Exact training implementation and hyperparameters are not released.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="release-boundary">
+    <div class="content">
+      <div class="eyebrow">Reproduction boundary</div><h2>Reproduce the public pathway. Do not claim the unavailable one.</h2>
+      <div class="grid2">
+        <div class="card aqua"><div class="label">Public</div><h3>What we can reproduce</h3><p>FrontierAgent runtime · ReAct and Agent Team · public evaluation harness · 36B Mini weights and quantizations · FrontierChallenge task package · trajectory generation.</p></div>
+        <div class="card coral"><div class="label">Not public enough</div><h3>What we cannot exactly reproduce</h3><p>Full training corpus · exact SFT mixture · model-soup recipes · distributed rollout infrastructure · PIVOT-RL code · complete hyperparameters · flagship checkpoint · all internal graders.</p></div>
+      </div>
+      <p class="takeaway">Call the project a partial reproduction plus an independent extension.</p>
+      <div class="source"><b>S01–S04</b> Paper, public repository, model collection, and dataset cards inspected 2026-08-31.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="results-table">
+    <div class="content">
+      <div class="eyebrow">Reported effect of coordination</div><h2>Same Apodex generation, more organized test-time work.</h2>
+      <table>
+        <thead><tr><th>Benchmark</th><th>ReAct</th><th>Agent Team</th><th>Difference</th></tr></thead>
+        <tbody>
+          <tr><td>APEX-Agents</td><td>34.4</td><td>38.5</td><td class="up">+4.1</td></tr>
+          <tr><td>GDPVal</td><td>69.5</td><td>78.8</td><td class="up">+9.3</td></tr>
+          <tr><td>FrontierFinance</td><td>48.7</td><td>54.3</td><td class="up">+5.6</td></tr>
+          <tr><td>FrontierScience-Research</td><td>55.0</td><td>63.3</td><td class="up">+8.3</td></tr>
+          <tr><td>BioMysteryBench</td><td>23.5</td><td>35.3</td><td class="up">+11.8</td></tr>
+          <tr><td>Humanity’s Last Exam</td><td>53.2</td><td>56.1</td><td class="up">+2.9</td></tr>
+        </tbody>
+      </table>
+      <div class="warning" style="margin-top:24px">These are authors’ reported point estimates. Agent Team also uses additional coordinated model calls; the table alone does not isolate training from test-time compute.</div>
+      <div class="source"><b>S01 Tables 3–4</b> Differences computed directly from reported ReAct and Agent Team values.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="interpretation">
+    <div class="content">
+      <div class="eyebrow">How to read the result</div><h2>Three claims. Only one follows directly.</h2>
+      <div class="grid3">
+        <div class="card aqua"><div class="label">Supported</div><h3>System-level lift</h3><p>Within the authors’ setups, Agent Team scored higher than ReAct on the six shown comparisons.</p></div>
+        <div class="card gold"><div class="label">Unresolved</div><h3>Why it improved</h3><p>Training, prompting, decomposition quality, call budget, and verifier interaction are not fully separated.</p></div>
+        <div class="card coral"><div class="label">Not established</div><h3>Universal superiority</h3><p>The paper does not prove that more agents always help or that coordination is cheaper.</p></div>
+      </div>
+      <p class="takeaway">Our extension should isolate one mechanism under a matched budget.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="reproduction-design">
+    <div class="content">
+      <div class="eyebrow">Our partial reproduction</div><h2>Freeze one task family. Compare two environment choices.</h2>
+      <div class="matrix">
+        <div class="mcell head">Component</div><div class="mcell head">A</div><div class="mcell head">B</div><div class="mcell head">Held fixed</div><div class="mcell head">Measure</div>
+        <div class="mcell row">Reward</div><div class="mcell on">terminal only</div><div class="mcell on">component vector</div><div class="mcell">model · tasks · calls</div><div class="mcell">test pass rate</div>
+        <div class="mcell row">Initial states</div><div class="mcell on">low diversity</div><div class="mcell on">high diversity</div><div class="mcell">reward · budget</div><div class="mcell">unseen schema score</div>
+        <div class="mcell row">Coordination</div><div class="mcell on">single agent</div><div class="mcell on">two roles</div><div class="mcell">total model calls</div><div class="mcell">quality per call</div>
+      </div>
+      <div class="warning" style="margin-top:28px">Choose one row for the first paper. Running all three at once destroys attribution.</div>
+      <div class="source"><b>S08</b> RAGEN motivates initial-state and reward questions; call-matched coordination is our proposed Apodex follow-up.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="adjacent-questions">
+    <div class="content">
+      <div class="eyebrow">Adjacent research questions</div><h2>Six directions that can become separate papers.</h2>
+      <div class="grid3">
+        <div class="card"><h3>1 · Verifier strength</h3><p>Do stronger hidden tests reduce reward hacking but slow learning?</p></div>
+        <div class="card"><h3>2 · State diversity</h3><p>Which diversity—schema, corruption, or values—drives transfer?</p></div>
+        <div class="card"><h3>3 · Interaction granularity</h3><p>Do atomic tools learn better than unrestricted shell commands?</p></div>
+        <div class="card"><h3>4 · Search access</h3><p>When does retrieval improve truth versus increase distraction?</p></div>
+        <div class="card"><h3>5 · Call-matched teams</h3><p>Does coordination still help with equal total model calls?</p></div>
+        <div class="card"><h3>6 · Pivot localization</h3><p>Can automatic pivot detectors match human failure labels?</p></div>
+      </div>
+      <div class="source"><b>S07–S10</b> Toolformer, Search-R1, RAGEN, OSWorld, and SWE-bench motivate tool-use, search, state, interaction, and verifier questions.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="best-first-paper">
+    <div class="content hero">
+      <div class="eyebrow">Strongest first study</div>
+      <h1>Does <span class="aqua">initial-state diversity</span> improve transfer more than simply collecting more trajectories?</h1>
+      <div class="rule"></div>
+      <div class="grid3" style="margin-top:42px;flex:0 0 330px">
+        <div class="card blue"><h3>Low diversity</h3><p>20 schemas × 100 trajectories each.</p></div>
+        <div class="card coral"><h3>High diversity</h3><p>100 schemas × 20 trajectories each.</p></div>
+        <div class="card aqua"><h3>Same budget</h3><p>2,000 trajectories, model, optimizer, and test set.</p></div>
+      </div>
+      <p class="takeaway">Outcome: pass rate on unseen schemas and corruption families.</p>
+      <div class="source"><b>S08</b> RAGEN reports that diverse initial states benefit rollout shaping; this study tests the claim in artifact-producing file environments.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="controls">
+    <div class="content">
+      <div class="eyebrow">Preregister the comparison</div><h2>Freeze what could move after seeing results.</h2>
+      <div class="grid4" style="flex:0 0 540px">
+        <div class="card"><div class="label">Data</div><p>Generator version, hashes, train/dev/test families.</p></div>
+        <div class="card"><div class="label">Training</div><p>Starting checkpoint, optimizer, rollouts, update count.</p></div>
+        <div class="card"><div class="label">Evaluation</div><p>Seeds, decoding, budget, timeout, verifier version.</p></div>
+        <div class="card"><div class="label">Decision</div><p>Primary metric, exclusion rule, confidence interval.</p></div>
+      </div>
+      <div class="equation" style="margin-top:28px">Primary effect = mean paired difference in hidden-instance pass rate</div>
+      <div class="warning" style="margin-top:18px">Run a smoke test before freezing. After freezing, repair only implementation bugs—and record every repair.</div>
+      <div class="source"><b>S11</b> Henderson et al. (2018) documents sensitivity of deep-RL results to seeds, environments, hyperparameters, and implementations.</div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="paper-outline">
+    <div class="content">
+      <div class="eyebrow">Turn the experiment into a paper-shaped portfolio artifact</div><h2>Write the argument in the same order the evidence was created.</h2>
+      <div class="timeline" style="grid-template-columns:repeat(5,1fr)">
+        <div class="event"><b>1</b><span>Question<br><small>why diversity?</small></span></div>
+        <div class="event"><b>2</b><span>Environment<br><small>contract + verifier</small></span></div>
+        <div class="event"><b>3</b><span>Comparison<br><small>matched budget</small></span></div>
+        <div class="event"><b>4</b><span>Results<br><small>seeds + uncertainty</small></span></div>
+        <div class="event"><b>5</b><span>Limits<br><small>what did not transfer</small></span></div>
+      </div>
+      <div class="grid2" style="flex:0 0 270px">
+        <div class="card aqua"><h3>Release</h3><p>Task generator, Docker image, verifier, configs, trajectories, per-seed metrics.</p></div>
+        <div class="card coral"><h3>Do not release as “proof”</h3><p>One best seed, one cherry-picked trajectory, or screenshots without raw receipts.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="claim-ladder">
+    <div class="content">
+      <div class="eyebrow">Claim ladder</div><h2>Climb only as high as your controls allow.</h2>
+      <div class="ladder">
+        <div class="rung"><b>It ran</b><span>Environment produced trajectories.</span></div>
+        <div class="rung"><b>It scored</b><span>Verifier distinguished oracle and no-op.</span></div>
+        <div class="rung"><b>It improved</b><span>Paired seeds beat a frozen baseline.</span></div>
+        <div class="rung"><b>It transferred</b><span>Gain survived unseen task families.</span></div>
+        <div class="rung"><b>Mechanism</b><span>Ablations rule out plausible alternatives.</span></div>
+      </div>
+      <p class="takeaway">A polished agent demo usually proves only the first rung.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-slide-id="roadmap">
+    <div class="content hero">
+      <div class="eyebrow">Seven-day role-ready build path</div><h1>Ship the environment. <span class="accent">Then train.</span></h1>
+      <div class="flow" style="margin-top:38px;flex:0 0 350px">
+        <div class="node">Day 1<small>contract + oracle</small></div><div class="arrow">→</div>
+        <div class="node">Day 2–3<small>container + verifier</small></div><div class="arrow">→</div>
+        <div class="node">Day 4<small>pilot + exploit audit</small></div><div class="arrow">→</div>
+        <div class="node">Day 5–6<small>frozen runs</small></div><div class="arrow">→</div>
+        <div class="node hot">Day 7<small>analysis + release</small></div>
+      </div>
+      <p>Your first portfolio milestone is not GPU-scale RL. It is a verified, rerunnable environment with evidence a research team can inspect.</p>
+      <div class="source">Primary sources: Apodex 1.1 · FrontierAgent · FrontierChallenge · Harbor · Toolformer · Search-R1 · RAGEN · OSWorld · SWE-bench · Henderson et al. · OpenAI and Anthropic roles. Full ledger in SOURCES.md.</div>
+    </div>
+  </section>
+  </template>
+
+</main>
+<div class="counter" id="counter"></div><div class="progress" id="progress"></div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const counter=document.getElementById('counter'),progress=document.getElementById('progress'),stage=document.getElementById('stage');
+  const staticRender=new URLSearchParams(location.search).get('all')==='1';
+  const sokoSlide=document.querySelector('[data-slide-id="ragen-sokoban"]');
+  const sokoShell=document.getElementById('sokoLiveShell'),sokoPlayer=document.getElementById('sokoPlayer'),sokoCrate=document.getElementById('sokoCrate');
+  const sokoArrow=document.getElementById('sokoActionArrow'),sokoWord=document.getElementById('sokoActionWord'),sokoStepLabel=document.getElementById('sokoStepLabel'),sokoCommand=document.getElementById('sokoCommand');
+  const sokoFeedback=document.getElementById('sokoFeedback'),sokoReward=document.getElementById('sokoReward'),sokoTargetCount=document.getElementById('sokoTargetCount');
+  const sokoActionNodes=[...document.querySelectorAll('#sokoActionSequence i')];
+  const coverSokoSlide=document.querySelector('.cover-soko-slide'),coverSokoShell=document.getElementById('coverSokoLiveShell'),coverSokoPlayer=document.getElementById('coverSokoPlayer'),coverSokoCrate=document.getElementById('coverSokoCrate');
+  const coverSokoArrow=document.getElementById('coverSokoActionArrow'),coverSokoWord=document.getElementById('coverSokoActionWord'),coverSokoStepLabel=document.getElementById('coverSokoStepLabel'),coverSokoCommand=document.getElementById('coverSokoCommand');
+  const coverSokoFeedback=document.getElementById('coverSokoFeedback'),coverSokoReward=document.getElementById('coverSokoReward'),coverSokoTargetCount=document.getElementById('coverSokoTargetCount');
+  const coverSokoActionNodes=[...document.querySelectorAll('#coverSokoActionSequence i')];
+  const toolPhoneSlide=document.querySelector('[data-slide-id="toolsandbox-phone"]'),toolPhoneWorld=document.getElementById('toolPhoneWorld');
+  const toolPhoneNetwork=document.getElementById('toolPhoneNetwork'),toolPhoneSignal=document.getElementById('toolPhoneSignal'),toolPhoneContactName=document.getElementById('toolPhoneContactName'),toolPhoneContactNumber=document.getElementById('toolPhoneContactNumber');
+  const toolPhonePhase=document.getElementById('toolPhonePhase'),toolPhoneStepLabel=document.getElementById('toolPhoneStepLabel'),toolPhoneToolName=document.getElementById('toolPhoneToolName'),toolPhoneArgs=document.getElementById('toolPhoneArgs');
+  const toolPhoneReturn=document.getElementById('toolPhoneReturn'),toolPhoneResponse=document.getElementById('toolPhoneResponse'),toolPhoneScore=document.getElementById('toolPhoneScore');
+  const toolPhoneStepNodes=[...document.querySelectorAll('#toolPhoneSteps .toolphone-step')],toolPhoneMilestoneNodes=[...document.querySelectorAll('#toolPhoneMilestones .toolphone-milestone')];
+  const sokoSteps=[
+    {word:'DOWN',arrow:'↓',cmd:'down',player:[3,3],crate:[3,4],feedback:'Policy P(D)=99.31%. The move pushes the box down.',reward:'−0.1 action'},
+    {word:'DOWN',arrow:'↓',cmd:'down',player:[3,4],crate:[3,5],feedback:'Policy P(D)=99.25%. The box reaches the bottom row.',reward:'−0.1 action'},
+    {word:'LEFT',arrow:'←',cmd:'left',player:[2,4],crate:[3,5],feedback:'Policy P(L)=98.93%. The player routes around the box.',reward:'−0.1 action'},
+    {word:'DOWN',arrow:'↓',cmd:'down',player:[2,5],crate:[3,5],feedback:'Policy P(D)=98.84%. The player lines up the push.',reward:'−0.1 action'},
+    {word:'RIGHT',arrow:'→',cmd:'right',player:[3,5],crate:[4,5],feedback:'Policy P(R)=99.11%. The first horizontal push succeeds.',reward:'−0.1 action'},
+    {word:'RIGHT',arrow:'→',cmd:'right',player:[4,5],crate:[5,5],feedback:'Policy P(R)=98.90%. Goal reached; episode complete.',reward:'+1 target\n+10 solved\n−0.1 action',solved:true}
+  ];
+  const toolPhoneActions=[
+    {phase:'FIND CONTACT',tool:'search_contacts',args:'{"name": "Fredrik Thordendal"}',response:'Found [redacted synthetic number]',state:'contact-known',passes:[1]},
+    {phase:'SEND → ERROR',tool:'send_message_with_phone_number',args:'{"phone_number": "[redacted synthetic number]",\n "content": "How’s the new album coming along."}',response:'ConnectionError: cellular service is not enabled',state:'phone-error',error:true,passes:[1]},
+    {phase:'REPAIR STATE',tool:'set_cellular_service_status',args:'{"on": true}',response:'cellular = true',state:'cell-on',passes:[0,1]},
+    {phase:'RETRY → SENT',tool:'send_message_with_phone_number',args:'{"phone_number": "[redacted synthetic number]",\n "content": "How’s the new album coming along."}',response:'Message stored in MESSAGING database',state:'message-sent',success:true,passes:[0,1,2,3]}
+  ];
+  let sokoTimers=[],sokoRunning=false,sokoStaticReady=false;
+  let coverSokoTimers=[],coverSokoRunning=false,coverSokoStaticReady=false;
+  let toolPhoneTimers=[],toolPhoneRunning=false,toolPhoneStaticReady=false;
+  let index=0,fragmentIndex=0;
+  function setSokoPosition(el,[col,row]){if(!el)return;el.style.setProperty('--x',`${(col-1)*82}px`);el.style.setProperty('--y',`${(row-1)*82}px`)}
+  function setSokoAction(step,i){if(!step)return;sokoArrow.textContent=step.arrow;sokoWord.textContent=step.word;sokoStepLabel.textContent=`ACTION ${String(i+1).padStart(2,'0')} / ${sokoSteps.length}`;sokoCommand.textContent=`<answer>${step.cmd}</answer>`}
+  function resetSokoban(){if(!sokoShell)return;sokoShell.classList.add('resetting');sokoShell.classList.remove('solved');setSokoPosition(sokoPlayer,[3,2]);setSokoPosition(sokoCrate,[3,3]);sokoCrate.classList.remove('on-goal');sokoTargetCount.textContent='0 / 1 BOXES ON TARGET';sokoActionNodes.forEach((n,i)=>{n.classList.remove('done','active');if(i===0)n.classList.add('active')});setSokoAction(sokoSteps[0],0);sokoFeedback.textContent='The LLM receives the board and chooses the first move.';sokoReward.textContent='awaiting environment';void sokoShell.offsetWidth;sokoShell.classList.remove('resetting')}
+  function stopSokoban(){sokoRunning=false;sokoTimers.forEach(clearTimeout);sokoTimers=[]}
+  function laterSokoban(fn,ms){const id=setTimeout(()=>{sokoTimers=sokoTimers.filter(t=>t!==id);fn()},ms);sokoTimers.push(id)}
+  function startSokoban(){if(!sokoShell||sokoRunning)return;stopSokoban();resetSokoban();sokoRunning=true;let i=0;const runStep=()=>{if(!sokoRunning||!sokoSlide.classList.contains('active'))return;const step=sokoSteps[i];setSokoAction(step,i);sokoActionNodes.forEach((n,j)=>{n.classList.toggle('active',j===i);n.classList.toggle('done',j<i)});sokoFeedback.textContent=`Policy emits ${step.word}. Environment is executing…`;sokoReward.textContent='pending';laterSokoban(()=>{if(!sokoRunning)return;setSokoPosition(sokoPlayer,step.player);setSokoPosition(sokoCrate,step.crate);sokoFeedback.textContent=step.feedback;sokoReward.textContent=step.reward;sokoActionNodes[i].classList.remove('active');sokoActionNodes[i].classList.add('done');if(step.solved){sokoCrate.classList.add('on-goal');sokoTargetCount.textContent='1 / 1 BOX ON TARGET';sokoShell.classList.add('solved');laterSokoban(()=>{if(!sokoRunning)return;resetSokoban();i=0;laterSokoban(runStep,700)},6500)}else{i+=1;laterSokoban(runStep,650)}},340)};laterSokoban(runStep,700)}
+  function syncSokobanAnimation(){if(!sokoSlide)return;if(staticRender){if(!sokoStaticReady){resetSokoban();sokoStaticReady=true}return}if(sokoSlide.classList.contains('active')){if(!sokoRunning)startSokoban()}else if(sokoRunning){stopSokoban();resetSokoban()}}
+  function setCoverSokoPosition(el,[col,row]){if(!el)return;el.style.setProperty('--x',`${(col-1)*82}px`);el.style.setProperty('--y',`${(row-1)*82}px`)}
+  function setCoverSokoAction(step,i){if(!step)return;coverSokoArrow.textContent=step.arrow;coverSokoWord.textContent=step.word;coverSokoStepLabel.textContent=`ACTION ${String(i+1).padStart(2,'0')} / ${sokoSteps.length}`;coverSokoCommand.textContent=`<answer>${step.cmd}</answer>`}
+  function resetCoverSokoban(){if(!coverSokoShell)return;coverSokoShell.classList.add('resetting');coverSokoShell.classList.remove('solved');setCoverSokoPosition(coverSokoPlayer,[3,2]);setCoverSokoPosition(coverSokoCrate,[3,3]);coverSokoCrate.classList.remove('on-goal');coverSokoTargetCount.textContent='0 / 1 BOXES ON TARGET';coverSokoActionNodes.forEach((n,i)=>{n.classList.remove('done','active');if(i===0)n.classList.add('active')});setCoverSokoAction(sokoSteps[0],0);coverSokoFeedback.textContent='The LLM receives the board and chooses the first move.';coverSokoReward.textContent='awaiting environment';void coverSokoShell.offsetWidth;coverSokoShell.classList.remove('resetting')}
+  function stopCoverSokoban(){coverSokoRunning=false;coverSokoTimers.forEach(clearTimeout);coverSokoTimers=[]}
+  function laterCoverSokoban(fn,ms){const id=setTimeout(()=>{coverSokoTimers=coverSokoTimers.filter(t=>t!==id);fn()},ms);coverSokoTimers.push(id)}
+  function startCoverSokoban(){if(!coverSokoShell||coverSokoRunning)return;stopCoverSokoban();resetCoverSokoban();coverSokoRunning=true;let i=0;const runStep=()=>{if(!coverSokoRunning||!coverSokoSlide.classList.contains('active'))return;const step=sokoSteps[i];setCoverSokoAction(step,i);coverSokoActionNodes.forEach((n,j)=>{n.classList.toggle('active',j===i);n.classList.toggle('done',j<i)});coverSokoFeedback.textContent=`Policy emits ${step.word}. Environment is executing…`;coverSokoReward.textContent='pending';laterCoverSokoban(()=>{if(!coverSokoRunning)return;setCoverSokoPosition(coverSokoPlayer,step.player);setCoverSokoPosition(coverSokoCrate,step.crate);coverSokoFeedback.textContent=step.feedback;coverSokoReward.textContent=step.reward;coverSokoActionNodes[i].classList.remove('active');coverSokoActionNodes[i].classList.add('done');if(step.solved){coverSokoCrate.classList.add('on-goal');coverSokoTargetCount.textContent='1 / 1 BOX ON TARGET';coverSokoShell.classList.add('solved');laterCoverSokoban(()=>{if(!coverSokoRunning)return;resetCoverSokoban();i=0;laterCoverSokoban(runStep,700)},6500)}else{i+=1;laterCoverSokoban(runStep,650)}},340)};laterCoverSokoban(runStep,700)}
+  function syncCoverSokobanAnimation(){if(!coverSokoSlide)return;if(staticRender){if(!coverSokoStaticReady){resetCoverSokoban();coverSokoStaticReady=true}return}if(coverSokoSlide.classList.contains('active')){if(!coverSokoRunning)startCoverSokoban()}else if(coverSokoRunning){stopCoverSokoban();resetCoverSokoban()}}
+  function setToolPhoneCall(step,i){toolPhonePhase.textContent=step.phase;toolPhoneStepLabel.textContent=`TOOL CALL ${String(i+1).padStart(2,'0')} / ${toolPhoneActions.length}`;toolPhoneToolName.textContent=step.tool;toolPhoneArgs.textContent=step.args}
+  function setToolPhoneMilestones(passes){toolPhoneMilestoneNodes.forEach((node,i)=>node.classList.toggle('pass',passes.includes(i)));toolPhoneScore.textContent=`${passes.length} / ${toolPhoneMilestoneNodes.length}${passes.length===toolPhoneMilestoneNodes.length?' · PASS':''}`;toolPhoneScore.classList.toggle('pass',passes.length===toolPhoneMilestoneNodes.length)}
+  function resetToolPhone(){if(!toolPhoneWorld)return;toolPhoneWorld.classList.remove('cell-on','contact-known','phone-error','message-sent','solved');toolPhoneNetwork.textContent='CELLULAR OFF';toolPhoneSignal.textContent='NO SERVICE';toolPhoneContactName.textContent='Contact not queried';toolPhoneContactNumber.textContent='phone number hidden';toolPhoneStepNodes.forEach((node,i)=>{node.classList.remove('done','active');if(i===0)node.classList.add('active')});setToolPhoneCall(toolPhoneActions[0],0);toolPhoneReturn.classList.remove('error','success');toolPhoneResponse.textContent='awaiting tool call…';setToolPhoneMilestones([])}
+  function applyToolPhoneState(step){if(step.state==='contact-known'){toolPhoneWorld.classList.add('contact-known');toolPhoneContactName.textContent='Fredrik Thordendal';toolPhoneContactNumber.textContent='[redacted synthetic number]'}else if(step.state==='phone-error'){toolPhoneWorld.classList.add('phone-error')}else if(step.state==='cell-on'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('cell-on');toolPhoneNetwork.textContent='CELLULAR ON';toolPhoneSignal.textContent='LTE'}else if(step.state==='message-sent'){toolPhoneWorld.classList.remove('phone-error');toolPhoneWorld.classList.add('message-sent','solved')}}
+  function showToolPhoneStep(step,i){setToolPhoneCall(step,i);toolPhoneStepNodes.forEach((node,j)=>{node.classList.toggle('active',j===i);node.classList.toggle('done',j<i)});toolPhoneReturn.classList.remove('error','success');toolPhoneResponse.textContent='executing tool…'}
+  function completeToolPhoneStep(step,i){applyToolPhoneState(step);toolPhoneReturn.classList.toggle('error',Boolean(step.error));toolPhoneReturn.classList.toggle('success',Boolean(step.success));toolPhoneResponse.textContent=step.response;setToolPhoneMilestones(step.passes);toolPhoneStepNodes[i].classList.remove('active');toolPhoneStepNodes[i].classList.add('done')}
+  function stopToolPhone(){toolPhoneRunning=false;toolPhoneTimers.forEach(clearTimeout);toolPhoneTimers=[]}
+  function laterToolPhone(fn,ms){const id=setTimeout(()=>{toolPhoneTimers=toolPhoneTimers.filter(t=>t!==id);fn()},ms);toolPhoneTimers.push(id)}
+  function startToolPhone(){if(!toolPhoneWorld||toolPhoneRunning)return;stopToolPhone();resetToolPhone();toolPhoneRunning=true;let i=0;const runStep=()=>{if(!toolPhoneRunning||!toolPhoneSlide.classList.contains('active'))return;const step=toolPhoneActions[i];showToolPhoneStep(step,i);laterToolPhone(()=>{if(!toolPhoneRunning)return;completeToolPhoneStep(step,i);if(i===toolPhoneActions.length-1){laterToolPhone(()=>{if(!toolPhoneRunning)return;resetToolPhone();i=0;laterToolPhone(runStep,800)},2100)}else{i+=1;laterToolPhone(runStep,1050)}},650)};laterToolPhone(runStep,900)}
+  function prepareToolPhoneStatic(){resetToolPhone();toolPhoneActions.forEach((step,i)=>completeToolPhoneStep(step,i));setToolPhoneCall(toolPhoneActions.at(-1),toolPhoneActions.length-1);toolPhonePhase.textContent='RETRY → SENT'}
+  function syncToolPhoneAnimation(){if(!toolPhoneSlide)return;if(staticRender){if(!toolPhoneStaticReady){prepareToolPhoneStatic();toolPhoneStaticReady=true}return}if(toolPhoneSlide.classList.contains('active')){if(!toolPhoneRunning)startToolPhone()}else if(toolPhoneRunning){stopToolPhone();resetToolPhone()}}
+  function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(-50%,-50%) scale(${s})`}
+  function routeIndex(){const m=location.hash.match(/slide-(\d+)/);const q=new URLSearchParams(location.search).get('slide');const n=Number(q||(m&&m[1])||1);return Math.max(0,Math.min(slides.length-1,n-1))}
+  function fragments(){return [...slides[index].querySelectorAll('.fragment')]}
+  function render(updateHash=true){slides.forEach((s,i)=>s.classList.toggle('active',i===index));document.body.classList.toggle('is-title',index===0);const fs=fragments();fs.forEach((f,i)=>f.classList.toggle('show',i<fragmentIndex));counter.textContent=`${String(index+1).padStart(2,'0')} / ${String(slides.length).padStart(2,'0')}`;progress.style.width=`${((index+1)/slides.length)*100}%`;syncCoverSokobanAnimation();syncSokobanAnimation();syncToolPhoneAnimation();if(updateHash)history.replaceState(null,'',`#slide-${index+1}`)}
+  function next(){const fs=fragments();if(fragmentIndex<fs.length){fragmentIndex++;render(false);return}if(index<slides.length-1){index++;fragmentIndex=0;render()}}
+  function prev(){if(fragmentIndex>0){fragmentIndex--;render(false);return}if(index>0){index--;fragmentIndex=fragments().length;render()}}
+  addEventListener('resize',fit);addEventListener('hashchange',()=>{index=routeIndex();fragmentIndex=0;render(false)});
+  addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();next()}else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev()}else if(e.key==='Home'){index=0;fragmentIndex=0;render()}else if(e.key==='End'){index=slides.length-1;fragmentIndex=fragments().length;render()}});
+  addEventListener('click',e=>{if(e.clientX>innerWidth/2)next();else prev()});
+  if(new URLSearchParams(location.search).get('all')==='1')document.body.classList.add('show-all');
+  index=routeIndex();fit();render(false);
+</script>
+</body>
+</html>

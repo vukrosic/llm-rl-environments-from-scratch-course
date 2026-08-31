@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560">
+<rect width="100%" height="100%" rx="28" fill="#07151d"/>
+<text x="90" y="34" fill="#e9f7f3" font-family="system-ui" font-size="24" font-weight="800">Training solve rate</text>
+<line x1="90" y1="485.0" x2="1060" y2="485.0" stroke="#27434f"/>
+<text x="72" y="491.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">0.0</text>
+<line x1="90" y1="399.0" x2="1060" y2="399.0" stroke="#27434f"/>
+<text x="72" y="405.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">0.2</text>
+<line x1="90" y1="313.0" x2="1060" y2="313.0" stroke="#27434f"/>
+<text x="72" y="319.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">0.4</text>
+<line x1="90" y1="227.0" x2="1060" y2="227.0" stroke="#27434f"/>
+<text x="72" y="233.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">0.6</text>
+<line x1="90" y1="141.0" x2="1060" y2="141.0" stroke="#27434f"/>
+<text x="72" y="147.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">0.8</text>
+<line x1="90" y1="55.0" x2="1060" y2="55.0" stroke="#27434f"/>
+<text x="72" y="61.0" text-anchor="end" fill="#8ba2ad" font-family="monospace" font-size="16">1.0</text>
+<polyline fill="none" stroke="#ffb347" stroke-width="5" points="90.0,270.0 102.3,252.5 114.6,280.8 126.8,279.4 139.1,264.6 151.4,283.4 163.7,256.6 175.9,270.0 188.2,237.8 200.5,259.2 212.8,248.5 225.1,251.2 237.3,255.2 249.6,239.1 261.9,245.8 274.2,241.8 286.5,256.6 298.7,248.5 311.0,241.8 323.3,235.1 335.6,228.3 347.8,240.4 360.1,228.3 372.4,240.4 384.7,244.5 397.0,243.1 409.2,223.0 421.5,231.0 433.8,248.5 446.1,231.0 458.4,239.1 470.6,241.8 482.9,243.1 495.2,225.7 507.5,221.6 519.7,239.1 532.0,220.3 544.3,209.5 556.6,228.3 568.9,218.9 581.1,237.8 593.4,253.9 605.7,218.9 618.0,228.3 630.3,232.4 642.5,245.8 654.8,237.8 667.1,239.1 679.4,252.5 691.6,225.7 703.9,221.6 716.2,237.8 728.5,220.3 740.8,227.0 753.0,218.9 765.3,239.1 777.6,224.3 789.9,245.8 802.2,216.2 814.4,236.4 826.7,231.0 839.0,241.8 851.3,214.9 863.5,220.3 875.8,208.2 888.1,213.6 900.4,213.6 912.7,232.4 924.9,218.9 937.2,220.3 949.5,208.2 961.8,235.1 974.1,223.0 986.3,228.3 998.6,220.3 1010.9,216.2 1023.2,224.3 1035.4,221.6 1047.7,221.6 1060.0,212.2"/>
+<text x="90" y="534" fill="#8ba2ad" font-family="monospace" font-size="17">policy updates →</text>
+<circle cx="770" cy="32" r="7" fill="#ffb347"/><text x="785" y="38" fill="#e9f7f3" font-family="system-ui" font-size="17">sft_plus_rl</text>
+</svg>

@@ -1,0 +1,19 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# Local slide QA output is reproducible and unnecessarily large.
+renders/
+layout-audit.json
+index.html.review.md
+
+# Pilot and intermediate model state are not publication artifacts.
+results/pilot*/
+results/**/checkpoints/
+results/**/training/
+
+# Keep the selected tiny final artifact and final evidence receipts.
+*.tmp

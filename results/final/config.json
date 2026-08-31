@@ -1,0 +1,71 @@
+{
+  "artifact_condition": "sft_plus_rl",
+  "artifact_seed": 2001,
+  "conditions": [
+    {
+      "name": "sft_plus_rl",
+      "reward": "progress",
+      "sampler": "uniform"
+    }
+  ],
+  "device": "cpu",
+  "evaluation": {
+    "batch_size": 128,
+    "max_puzzles_per_distance": 64,
+    "max_steps": 20,
+    "primary_max_steps": 10,
+    "primary_min_steps": 1,
+    "split": "test"
+  },
+  "history_limit": 0,
+  "model": {
+    "d_ff": 64,
+    "d_model": 32,
+    "dropout": 0.0,
+    "max_seq_len": 64,
+    "n_heads": 4,
+    "n_layers": 2,
+    "num_actions": 4,
+    "pad_token_id": 0
+  },
+  "name": "final",
+  "output_dir": "results/final",
+  "primary_comparison": {
+    "control": "sft",
+    "treatment": "sft_plus_rl"
+  },
+  "publish_artifact": true,
+  "seeds": [
+    2001,
+    2002,
+    2003,
+    2004,
+    2005
+  ],
+  "sft": {
+    "batch_size": 128,
+    "epochs": 30,
+    "gradient_clip": 1.0,
+    "learning_rate": 0.002,
+    "max_puzzle_steps": 10,
+    "weight_decay": 0.0
+  },
+  "split_seed": 314159,
+  "training": {
+    "batch_size": 64,
+    "curriculum_replay_fraction": 0.2,
+    "curriculum_threshold": 0.45,
+    "curriculum_window_updates": 5,
+    "entropy_coefficient": 0.005,
+    "gamma": 1.0,
+    "gradient_clip": 1.0,
+    "initial_boundary": 2,
+    "learning_rate": 0.0001,
+    "log_every": 10,
+    "max_steps": 20,
+    "max_train_difficulty": 10,
+    "shaping_scale": 0.5,
+    "updates": 80,
+    "weight_decay": 0.0
+  }
+}

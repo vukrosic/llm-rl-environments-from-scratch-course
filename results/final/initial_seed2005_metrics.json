@@ -1,0 +1,110 @@
+{
+  "by_optimal_steps": {
+    "1": {
+      "count": 4,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9672131147540983,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 15.25,
+      "solve_rate": 0.25
+    },
+    "10": {
+      "count": 2,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.975,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "11": {
+      "count": 1,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 1.0,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "2": {
+      "count": 8,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.95625,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "3": {
+      "count": 11,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9227272727272727,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "4": {
+      "count": 15,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9433333333333334,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "5": {
+      "count": 17,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9264705882352942,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "6": {
+      "count": 15,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9466666666666667,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "7": {
+      "count": 10,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.95,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "8": {
+      "count": 5,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.94,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    },
+    "9": {
+      "count": 3,
+      "deadlock_rate": 0.0,
+      "invalid_action_rate": 0.9333333333333333,
+      "mean_excess_steps_solved": 0.0,
+      "mean_steps": 20.0,
+      "solve_rate": 0.0
+    }
+  },
+  "overall": {
+    "count": 91,
+    "deadlock_rate": 0.0,
+    "invalid_action_rate": 0.9416990560799556,
+    "mean_excess_steps_solved": 0.0,
+    "mean_steps": 19.791208791208792,
+    "solve_rate": 0.01098901098901099
+  },
+  "primary": {
+    "count": 90,
+    "deadlock_rate": 0.0,
+    "invalid_action_rate": 0.9410443571027512,
+    "max_optimal_steps": 10,
+    "mean_excess_steps_solved": 0.0,
+    "mean_steps": 19.788888888888888,
+    "min_optimal_steps": 1,
+    "solve_rate": 0.011111111111111112
+  }
+}

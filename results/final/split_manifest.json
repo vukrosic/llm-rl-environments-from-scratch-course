@@ -1,0 +1,2132 @@
+{
+  "format_version": 1,
+  "splits": {
+    "train": [
+      {
+        "puzzle_id": "p11-b12-g13",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p11-b21-g31",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p12-b22-g32",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p21-b22-g23",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p21-b31-g41",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p22-b32-g42",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p23-b22-g21",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p31-b21-g11",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p33-b23-g13",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p33-b32-g31",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p41-b31-g21",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p42-b32-g22",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p42-b43-g44",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p43-b33-g23",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p44-b43-g42",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p11-b22-g23",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p11-b22-g32",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p11-b31-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p12-b21-g31",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p12-b22-g42",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p13-b23-g43",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p13-b33-g43",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p21-b12-g13",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p21-b32-g33",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p21-b32-g42",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p22-b31-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p22-b33-g43",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p23-b32-g31",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p23-b32-g42",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p31-b22-g23",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p32-b23-g13",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p32-b43-g44",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p33-b22-g12",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p33-b22-g21",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b21-g11",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b31-g11",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b32-g33",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b42-g44",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b43-g44",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p42-b22-g12",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p42-b31-g21",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p42-b32-g12",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p42-b33-g23",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p43-b32-g22",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p43-b32-g31",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p43-b33-g13",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p44-b43-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p11-b23-g33",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p11-b32-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b21-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b22-g23",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b23-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b31-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b33-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p13-b21-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p13-b22-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p13-b32-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p13-b32-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p21-b33-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p21-b42-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b12-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b21-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b23-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b32-g33",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p23-b22-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p23-b22-g32",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p23-b31-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p23-b42-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b12-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b23-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b32-g22",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b32-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b42-g44",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p31-b43-g44",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b22-g23",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b31-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b33-g23",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b33-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p33-b12-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p33-b21-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p33-b32-g22",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p33-b43-g44",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p41-b22-g23",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b21-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b31-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b32-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b32-g33",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p43-b22-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p43-b22-g21",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p43-b31-g21",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p43-b32-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p44-b23-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p44-b32-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p44-b33-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p11-b22-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p11-b23-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b21-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b22-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b22-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b23-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b32-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b32-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b43-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p13-b22-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p13-b31-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b12-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b22-g42",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b23-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b23-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b32-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b42-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b43-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b21-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b23-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b31-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b32-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b33-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b42-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b12-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b21-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b21-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b22-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b22-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b22-g32",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b32-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b33-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b33-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b42-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b12-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b22-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b22-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b23-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b31-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b42-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b22-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b22-g32",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b31-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b32-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b32-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b32-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b42-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p41-b12-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p41-b23-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p41-b32-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p41-b32-g42",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b22-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b31-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b32-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p43-b12-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p43-b21-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p43-b31-g11",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p43-b32-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p43-b32-g42",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p44-b22-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p44-b22-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p44-b31-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p11-b12-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b21-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b22-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b22-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b32-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b42-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b22-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b22-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b31-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b32-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b32-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b33-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b42-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p12-b42-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b12-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b22-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b22-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b22-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b23-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b23-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b32-g22",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b32-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b33-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b22-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b22-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b23-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b32-g12",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b32-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b32-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b32-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b33-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b42-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b31-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b32-g22",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b32-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b33-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b42-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b21-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b22-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b31-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b32-g12",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b32-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b32-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b33-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b42-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b22-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b22-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b22-g42",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b23-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b32-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b33-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p32-b22-g32",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p32-b23-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b12-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b22-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b22-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b22-g42",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b23-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b31-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b32-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b32-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b42-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b32-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b42-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b12-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b21-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b22-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b23-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b32-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b32-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b32-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b33-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b42-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p44-b12-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p44-b21-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p44-b31-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p44-b32-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b22-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b31-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b32-g12",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b32-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b32-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b32-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b33-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b23-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b31-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b32-g22",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b33-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b42-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b22-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b22-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b31-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b32-g12",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b32-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b32-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b33-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b42-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b22-g31",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b31-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b32-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b32-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b33-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b33-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p22-b32-g12",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p22-b32-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p22-b32-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b22-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b22-g33",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b32-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b32-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b33-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p31-b22-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p31-b32-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p31-b32-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p32-b22-g31",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p32-b22-g42",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p32-b33-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p33-b32-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b21-g31",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b22-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b22-g33",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b22-g42",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b23-g33",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b32-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b32-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p42-b21-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p42-b22-g32",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b12-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b21-g31",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b22-g31",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b22-g42",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b32-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b32-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b42-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b22-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b22-g32",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b32-g21",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b32-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b42-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b22-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b23-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b32-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b33-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b33-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p12-b32-g12",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p12-b32-g23",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b31-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b32-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b32-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b33-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b42-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p21-b22-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p21-b32-g21",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p22-b32-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p23-b32-g23",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p31-b22-g31",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p31-b32-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p31-b32-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p31-b33-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p32-b22-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p33-b22-g33",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p33-b32-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p41-b21-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p41-b22-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p41-b23-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p41-b32-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p42-b22-g42",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p43-b21-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p43-b22-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p43-b32-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b22-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b22-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b22-g31",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b23-g33",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b32-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b32-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b42-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b43-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b32-g21",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p21-b22-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p21-b32-g11",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p23-b22-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p31-b22-g41",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p33-b22-g43",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p41-b22-g31",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p41-b33-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p42-b22-g41",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p42-b22-g43",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p43-b22-g33",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p43-b33-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p44-b21-g41",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p44-b22-g41",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p44-b23-g43",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p44-b32-g43",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p11-b32-g11",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p13-b32-g13",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p33-b23-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p41-b22-g41",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p42-b32-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p43-b22-g43",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p44-b22-g33",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p44-b32-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p44-b33-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p32-b22-g44",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p41-b22-g44",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p41-b23-g44",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p43-b23-g44",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p42-b22-g44",
+        "optimal_steps": 11
+      },
+      {
+        "puzzle_id": "p44-b23-g44",
+        "optimal_steps": 11
+      }
+    ],
+    "validation": [
+      {
+        "puzzle_id": "p23-b33-g43",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p31-b32-g33",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p32-b22-g12",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p11-b21-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p13-b22-g21",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p13-b22-g32",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p32-b21-g11",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p41-b32-g22",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p44-b42-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p11-b32-g33",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p12-b22-g21",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p21-b22-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b12-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b23-g33",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b43-g44",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b22-g21",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b42-g41",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p33-b32-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p41-b32-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p13-b22-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b22-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b22-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b32-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p22-b42-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b32-g22",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b32-g33",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b43-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b32-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b12-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p33-b31-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b22-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p44-b32-g12",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p11-b22-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b23-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b32-g22",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b43-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p21-b31-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p22-b33-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b22-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p23-b32-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b21-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b22-g33",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b22-g21",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b32-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b22-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b22-g32",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b31-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p43-b32-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b42-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b33-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p13-b32-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p31-b21-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p31-b23-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p33-b22-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p33-b32-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p42-b32-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p42-b32-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b22-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b23-g33",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b32-g23",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b33-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b31-g11",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p12-b32-g21",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b22-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p22-b23-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p22-b32-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p23-b22-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p42-b22-g33",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b21-g31",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p12-b32-g13",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p23-b32-g13",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p43-b32-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p31-b23-g44",
+        "optimal_steps": 9
+      }
+    ],
+    "test": [
+      {
+        "puzzle_id": "p13-b12-g11",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p13-b23-g33",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p41-b42-g43",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p43-b42-g41",
+        "optimal_steps": 1
+      },
+      {
+        "puzzle_id": "p12-b23-g33",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p12-b32-g42",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p23-b12-g11",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p31-b22-g12",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p31-b42-g43",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p33-b42-g41",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p43-b23-g13",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p44-b33-g23",
+        "optimal_steps": 2
+      },
+      {
+        "puzzle_id": "p11-b22-g42",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p21-b22-g32",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b21-g11",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p22-b32-g31",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b31-g21",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p32-b42-g43",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p41-b22-g12",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p41-b33-g23",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b23-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p42-b33-g13",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p44-b32-g22",
+        "optimal_steps": 3
+      },
+      {
+        "puzzle_id": "p11-b22-g21",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p11-b33-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p11-b42-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p13-b21-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p13-b42-g41",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p21-b32-g22",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b22-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b22-g42",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p23-b33-g44",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p31-b32-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b21-g31",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p32-b33-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p41-b33-g13",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b32-g23",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p42-b33-g43",
+        "optimal_steps": 4
+      },
+      {
+        "puzzle_id": "p12-b22-g12",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b21-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p13-b43-g44",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b12-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p31-b32-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p32-b21-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b21-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p33-b22-g31",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b22-g32",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b31-g41",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b32-g23",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p41-b33-g43",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b12-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b22-g13",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b32-g11",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p42-b32-g42",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p44-b32-g42",
+        "optimal_steps": 5
+      },
+      {
+        "puzzle_id": "p11-b22-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b22-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b22-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b22-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p12-b32-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p21-b22-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b31-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p23-b42-g44",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p32-b22-g33",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p33-b21-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p33-b23-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b12-g11",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p41-b22-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p42-b23-g43",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p43-b22-g13",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p44-b31-g41",
+        "optimal_steps": 6
+      },
+      {
+        "puzzle_id": "p11-b22-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p11-b32-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p13-b22-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p32-b22-g41",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p33-b32-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p42-b22-g31",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p42-b33-g44",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p43-b23-g43",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b12-g13",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p44-b22-g42",
+        "optimal_steps": 7
+      },
+      {
+        "puzzle_id": "p12-b32-g11",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p13-b32-g23",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p21-b23-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p32-b23-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p41-b32-g44",
+        "optimal_steps": 8
+      },
+      {
+        "puzzle_id": "p31-b22-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p33-b22-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p42-b23-g44",
+        "optimal_steps": 9
+      },
+      {
+        "puzzle_id": "p43-b22-g44",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p44-b22-g43",
+        "optimal_steps": 10
+      },
+      {
+        "puzzle_id": "p44-b22-g44",
+        "optimal_steps": 11
+      }
+    ]
+  },
+  "sha256": "012b3f7886449d3073d365beb4851973d6f1508acc2ff9bb316f4f3c931e6098"
+}
